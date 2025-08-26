@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, log } from "./vite";
+import path from "path";
 
 // Initialize app with middleware
 function createApp() {
@@ -89,7 +90,7 @@ if (process.env.NODE_ENV === "production") {
         destination: "uploads/",
         filename: (req, file, cb) => {
           const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).substr(2);
-          const ext = require("path").extname(file.originalname) || '.jpg';
+          const ext = path.extname(file.originalname) || '.jpg';
           cb(null, uniqueSuffix + ext);
         }
       }),
