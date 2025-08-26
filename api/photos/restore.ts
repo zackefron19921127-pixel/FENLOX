@@ -1,7 +1,8 @@
 // Import shared storage
 import { uploadedPhotos } from '../shared-storage.js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -22,8 +23,48 @@ export default async function handler(req: any, res: any) {
     const id = 'usr' + timestamp + random;
     
     console.log('🚀 Processing upload with ID:', id);
-    console.log('🌐 Request method:', req.method);
-    console.log('📋 Headers:', req.headers);
+    
+    // Check if we have multer file data in req.file (from development setup)
+    if ((req as any).file) {
+      const file = (req as any).file;
+      console.log('📁 Multer file detected:', {
+        filename: file.filename,
+        mimetype: file.mimetype,
+        size: file.size
+      });
+      
+      // Read the uploaded file and convert to base64
+      const fs = await import('fs');
+      const fileBuffer = fs.readFileSync(file.path);
+      const base64Data = fileBuffer.toString('base64');
+      const originalImageUrl = `data:${file.mimetype};base64,${base64Data}`;
+      
+      console.log('✅ Image converted to base64 successfully! Size:', fileBuffer.length);
+      
+      // For demo, just return the uploaded image as both original and "restored"
+      const restoredImageUrl = originalImageUrl;
+
+      const restoration = {
+        id: id,
+        originalImageUrl: originalImageUrl,
+        restoredImageUrl: restoredImageUrl,
+        options: {},
+        status: 'completed',
+        createdAt: new Date().toISOString(),
+        completedAt: new Date().toISOString()
+      };
+
+      // Store the complete restoration for retrieval
+      uploadedPhotos.set(id, restoration);
+
+      console.log("✅ Photo restoration completed:", id);
+      console.log("📊 Image extracted: YES (real image data)");
+
+      return res.status(201).json(restoration);
+    }
+    
+    // Fallback: try to parse FormData manually (original approach)
+    console.log('📦 No multer file, trying manual FormData parsing...');
     
     // Read the request body as buffer
     const buffers: Buffer[] = [];
@@ -33,7 +74,6 @@ export default async function handler(req: any, res: any) {
     const buffer = Buffer.concat(buffers);
     
     console.log('📦 Received buffer size:', buffer.length);
-    console.log('📋 Content-Type:', req.headers['content-type']);
     
     // Default placeholder  
     let originalImageUrl = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTJlOGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzQ3NTU2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`;
@@ -52,8 +92,6 @@ export default async function handler(req: any, res: any) {
           const base64Data = imageBuffer.toString('base64');
           originalImageUrl = `data:image/jpeg;base64,${base64Data}`;
           console.log('✅ JPEG extracted successfully! Size:', imageBuffer.length);
-        } else {
-          console.log('⚠️ JPEG start found but no end marker');
         }
       }
       
@@ -69,17 +107,12 @@ export default async function handler(req: any, res: any) {
           const base64Data = imageBuffer.toString('base64');
           originalImageUrl = `data:image/png;base64,${base64Data}`;
           console.log('✅ PNG extracted successfully! Size:', imageBuffer.length);
-        } else {
-          console.log('⚠️ PNG start found but no IEND marker');
         }
       }
       
       if (jpegStart === -1 && pngStart === -1) {
         console.log('❌ No image magic numbers found');
-        console.log('🔍 Buffer preview (first 200 chars):', buffer.toString('utf8', 0, Math.min(200, buffer.length)));
       }
-    } else {
-      console.log('❌ Empty buffer received');
     }
     
     // For demo purposes, just return the uploaded image as both original and "restored"
@@ -105,7 +138,6 @@ export default async function handler(req: any, res: any) {
     
   } catch (error) {
     console.error('❌ Upload error details:', error);
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return res.status(500).json({ error: 'Upload failed', details: error instanceof Error ? error.message : String(error) });
   }
 }
