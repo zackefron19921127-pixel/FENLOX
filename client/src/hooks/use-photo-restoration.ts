@@ -62,7 +62,7 @@ export function usePhotoRestoration() {
 
   // Poll for restoration status
   const { data: restoration, isLoading: isProcessing } = useQuery({
-    queryKey: ["/api/photos/restore", currentRestorationId],
+    queryKey: ["/api/photos", currentRestorationId],
     enabled: !!currentRestorationId,
     refetchInterval: (query) => {
       const data = query.state.data as PhotoRestoration | undefined;
