@@ -231,6 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get restoration status  
   app.get("/api/photos/:id", async (req, res) => {
+    console.log("🚨🚨🚨 HIT MAIN ROUTES /api/photos/:id 🚨🚨🚨");
     try {
       console.log("🔍 Getting restoration for ID:", req.params.id);
       const restoration = await storage.getPhotoRestoration(req.params.id);
