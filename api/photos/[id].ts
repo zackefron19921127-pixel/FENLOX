@@ -17,17 +17,21 @@ export default function handler(req: any, res: any) {
 
   const { id } = req.query;
   
+  console.log('🔍 Fetching restoration for ID:', id);
+  console.log('📦 Current stored uploads:', Array.from(uploadedPhotos.keys()));
+  
   if (!id || typeof id !== 'string') {
     return res.status(400).json({ error: 'Invalid restoration ID' });
   }
 
   // Check if this is a user upload and we have the restoration stored
   const isUserUpload = id.startsWith('usr');
-  console.log('Get restoration:', id, 'User upload:', isUserUpload, 'Has restoration stored:', uploadedPhotos.has(id));
+  console.log('✅ Get restoration:', id, 'User upload:', isUserUpload, 'Has restoration stored:', uploadedPhotos.has(id));
   
   if (isUserUpload && uploadedPhotos.has(id)) {
     // Return the stored restoration from the upload endpoint
     const restoration = uploadedPhotos.get(id);
+    console.log('📤 Returning stored restoration:', restoration);
     return res.status(200).json(restoration);
   }
 

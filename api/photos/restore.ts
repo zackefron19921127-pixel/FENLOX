@@ -97,6 +97,9 @@ export default async function handler(req: any, res: any) {
     // Store the complete restoration for retrieval
     uploadedPhotos.set(id, restoration);
 
+    console.log("✅ Photo restoration completed:", id);
+    console.log("📊 Stored restoration data:", restoration);
+
     return res.status(201).json(restoration);
     
   } catch (error) {

@@ -22,6 +22,8 @@ export function usePhotoRestoration() {
       file: File;
       options: UsePhotoRestorationOptions;
     }) => {
+      console.log("🚀 Starting photo upload:", file.name, file.size, file.type);
+      
       const formData = new FormData();
       formData.append("photo", file);
       formData.append("options", JSON.stringify(options));
@@ -38,6 +40,7 @@ export function usePhotoRestoration() {
         });
       }, 200);
 
+      console.log("📤 Sending upload request to /api/photos/restore");
       const response = await fetch("/api/photos/restore", {
         method: "POST",
         body: formData,
@@ -46,12 +49,17 @@ export function usePhotoRestoration() {
       clearInterval(progressInterval);
       setUploadProgress(100);
 
+      console.log("📨 Upload response status:", response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("❌ Upload failed:", errorData);
         throw new Error(errorData.error || "Upload failed");
       }
 
       const restoration: PhotoRestoration = await response.json();
+      console.log("✅ Upload successful, restoration ID:", restoration.id);
+      console.log("📊 Restoration data:", restoration);
       setCurrentRestorationId(restoration.id);
       return restoration;
     },
@@ -64,12 +72,31 @@ export function usePhotoRestoration() {
   const { data: restoration, isLoading: isProcessing } = useQuery({
     queryKey: ["/api/photos", currentRestorationId],
     enabled: !!currentRestorationId,
+    queryFn: async () => {
+      if (!currentRestorationId) return null;
+      console.log("🔄 Polling restoration status for ID:", currentRestorationId);
+      
+      const response = await fetch(`/api/photos/${currentRestorationId}`);
+      console.log("📨 Polling response status:", response.status);
+      
+      if (!response.ok) {
+        console.error("❌ Polling failed:", response.status);
+        throw new Error("Failed to fetch restoration status");
+      }
+      
+      const data = await response.json();
+      console.log("📊 Polling data received:", data);
+      return data;
+    },
     refetchInterval: (query) => {
       const data = query.state.data as PhotoRestoration | undefined;
+      console.log("⏰ Checking if should continue polling. Status:", data?.status);
       // Stop polling if completed or failed
       if (data?.status === "completed" || data?.status === "failed") {
+        console.log("✅ Stopping polling - restoration complete");
         return false;
       }
+      console.log("🔄 Continuing to poll...");
       return 2000; // Poll every 2 seconds
     },
     refetchIntervalInBackground: false,
