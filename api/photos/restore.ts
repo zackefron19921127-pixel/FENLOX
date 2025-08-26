@@ -21,61 +21,51 @@ export default async function handler(req: any, res: any) {
     const random = Math.random().toString(36).substring(2, 8);
     const id = 'usr' + timestamp + random;
     
-    // Read the request body as buffer
+    // Read the entire request body
     const buffers: Buffer[] = [];
     for await (const chunk of req) {
       buffers.push(chunk);
     }
     const buffer = Buffer.concat(buffers);
     
+    console.log('📦 Received buffer size:', buffer.length);
+    
+    // Default placeholder
     let originalImageUrl = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTJlOGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzQ3NTU2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`;
     
     if (buffer.length > 0) {
-      // More robust image detection
-      const bufferStr = buffer.toString('binary');
+      console.log('🔍 Searching for image in FormData...');
       
-      // Look for image magic numbers with better detection
-      let imageStart = -1;
-      let imageEnd = buffer.length;
-      let mimeType = 'image/jpeg';
-      
-      // JPEG detection
+      // Look for JPEG signature in FormData
       const jpegStart = buffer.indexOf(Buffer.from([0xFF, 0xD8, 0xFF]));
       if (jpegStart !== -1) {
-        imageStart = jpegStart;
-        mimeType = 'image/jpeg';
-        // Find JPEG end marker
+        console.log('📸 Found JPEG at position:', jpegStart);
         const jpegEnd = buffer.indexOf(Buffer.from([0xFF, 0xD9]), jpegStart + 10);
         if (jpegEnd !== -1) {
-          imageEnd = jpegEnd + 2;
+          const imageBuffer = buffer.slice(jpegStart, jpegEnd + 2);
+          const base64Data = imageBuffer.toString('base64');
+          originalImageUrl = `data:image/jpeg;base64,${base64Data}`;
+          console.log('✅ JPEG extracted successfully, size:', imageBuffer.length);
         }
       }
       
-      // PNG detection
+      // Look for PNG signature in FormData  
       const pngSignature = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
       const pngStart = buffer.indexOf(pngSignature);
-      if (pngStart !== -1 && (imageStart === -1 || pngStart < imageStart)) {
-        imageStart = pngStart;
-        mimeType = 'image/png';
-        // PNG files end with IEND chunk
+      if (pngStart !== -1 && jpegStart === -1) {
+        console.log('📸 Found PNG at position:', pngStart);
         const iendStart = buffer.indexOf(Buffer.from('IEND'), pngStart + 20);
         if (iendStart !== -1) {
-          imageEnd = iendStart + 8; // IEND + 4 bytes CRC
+          const imageBuffer = buffer.slice(pngStart, iendStart + 8);
+          const base64Data = imageBuffer.toString('base64');
+          originalImageUrl = `data:image/png;base64,${base64Data}`;
+          console.log('✅ PNG extracted successfully, size:', imageBuffer.length);
         }
       }
       
-      if (imageStart !== -1) {
-        // Extract the image data
-        const imageBuffer = buffer.slice(imageStart, imageEnd);
-        const base64Data = imageBuffer.toString('base64');
-        originalImageUrl = `data:${mimeType};base64,${base64Data}`;
-        
-        // Store for later retrieval
-        uploadedPhotos.set(id, originalImageUrl);
-        
-        console.log('User photo upload:', id, 'Has image data: true, size:', imageBuffer.length, 'type:', mimeType);
-      } else {
-        console.log('User photo upload:', id, 'No valid image data found in buffer of size:', buffer.length);
+      if (jpegStart === -1 && pngStart === -1) {
+        console.log('❌ No image signatures found in buffer');
+        console.log('🔍 Buffer preview:', buffer.toString('utf8', 0, Math.min(200, buffer.length)));
       }
     }
     

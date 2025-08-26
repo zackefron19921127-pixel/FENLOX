@@ -1,0 +1,55 @@
+⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 🚀 Starting photo upload: images.jpg 10055 image/jpeg
+index-BsQNpb1A.js:415 📤 Sending upload request to /api/photos/restore
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 📨 Upload response status: 201
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 ✅ Upload successful, restoration ID: usrmeshwfnlwhdjv4
+index-BsQNpb1A.js:415 📊 Restoration data: Object
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: undefined
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: false
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 🔄 Polling restoration status for ID: usrmeshwfnlwhdjv4
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-BsQNpb1A.js:415 🔄 Continuing to poll...
+index-BsQNpb1A.js:415 📨 Polling response status: 200
+index-BsQNpb1A.js:415 📊 Polling data received: Object
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: completed
+index-BsQNpb1A.js:415 ✅ Stopping polling - restoration complete
+index-BsQNpb1A.js:415 🎯 Upload zone check - restoration data: Object
+index-BsQNpb1A.js:415 🎯 Upload zone check - isCompleted: true
+index-BsQNpb1A.js:415 🎨 Rendering results component with data: Object
+index-BsQNpb1A.js:415 ⏰ Checking if should continue polling. Status: completed
+index-BsQNpb1A.js:415 ✅ Stopping polling - restoration complete
