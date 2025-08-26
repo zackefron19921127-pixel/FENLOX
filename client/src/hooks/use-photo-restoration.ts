@@ -40,8 +40,12 @@ export function usePhotoRestoration() {
         });
       }, 200);
 
-      console.log("📤 Sending upload request to /api/photos/restore");
-      const response = await fetch("/api/photos/restore", {
+      const uploadUrl = "/api/photos/restore";
+      console.log("📤 Sending upload request to", uploadUrl);
+      console.log("🌐 Current window location:", window.location.href);
+      console.log("🌐 Base URL being used:", window.location.origin + uploadUrl);
+      
+      const response = await fetch(uploadUrl, {
         method: "POST",
         body: formData,
       });
