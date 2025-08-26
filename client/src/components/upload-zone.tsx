@@ -90,6 +90,11 @@ export default function UploadZone() {
   console.log("🎯 Upload zone check - isCompleted:", isCompleted);
   
   if (isCompleted) {
+    console.log("🎨 Rendering results component with data:", {
+      originalImage: restorationData.originalImageUrl,
+      restoredImage: restorationData.restoredImageUrl,
+      options: restorationData.options
+    });
     
     // Scroll to results after a short delay to ensure rendering
     setTimeout(() => {
