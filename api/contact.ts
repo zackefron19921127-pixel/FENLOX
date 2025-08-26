@@ -1,23 +1,8 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import crypto from 'crypto';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// Simple contact storage for serverless
-class ContactStorage {
-  private submissions = new Map();
-  
-  async createContactSubmission(data: any) {
-    const id = crypto.randomUUID();
-    const submission = {
-      id,
-      ...data,
-      createdAt: new Date(),
-    };
-    this.submissions.set(id, submission);
-    return submission;
-  }
+function generateId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
-
-const storage = new ContactStorage();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -26,13 +11,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
@@ -40,19 +23,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { name, email, message } = req.body;
     
     if (!name || !email || !message) {
-      res.status(400).json({ 
+      return res.status(400).json({ 
         error: 'Name, email, and message are required' 
       });
-      return;
     }
 
-    const submission = await storage.createContactSubmission({ name, email, message });
-    res.status(201).json({ 
+    const id = generateId();
+    console.log(`Contact submission received: ${name} (${email})`);
+
+    return res.status(201).json({ 
       message: 'Contact submission received', 
-      id: submission.id 
+      id 
     });
   } catch (error) {
     console.error('Contact submission error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }

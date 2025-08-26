@@ -1,16 +1,4 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import crypto from 'crypto';
-
-// Simple in-memory storage for serverless
-class MemStorage {
-  private restorations = new Map();
-  
-  async getPhotoRestoration(id: string) {
-    return this.restorations.get(id) || null;
-  }
-}
-
-const storage = new MemStorage();
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -19,33 +7,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const { id } = req.query;
     
     if (!id || typeof id !== 'string') {
-      res.status(400).json({ error: 'Invalid restoration ID' });
-      return;
+      return res.status(400).json({ error: 'Invalid restoration ID' });
     }
 
-    const restoration = await storage.getPhotoRestoration(id);
-    
-    if (!restoration) {
-      res.status(404).json({ error: 'Restoration not found' });
-      return;
-    }
+    // Mock restoration data for demo
+    const restoration = {
+      id,
+      originalImageUrl: `/uploads/demo-${Date.now()}.jpg`,
+      options: {},
+      status: 'completed' as const,
+      restoredImageUrl: 'https://via.placeholder.com/400x300/10b981/ffffff?text=AI+Restored+Photo',
+      createdAt: new Date(),
+      completedAt: new Date(),
+    };
 
-    res.json(restoration);
+    return res.json(restoration);
   } catch (error) {
     console.error('Get restoration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
