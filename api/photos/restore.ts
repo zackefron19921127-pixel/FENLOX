@@ -1,3 +1,6 @@
+// Simple in-memory storage for demo
+const restorations = new Map();
+
 export default function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,16 +18,20 @@ export default function handler(req, res) {
   // Generate unique ID
   const id = Math.random().toString(36).substring(2) + Date.now().toString(36);
   
-  // Create restoration record
+  // Create restoration record with user's photo info
   const restoration = {
     id: id,
-    originalImageUrl: '/uploads/demo-' + Date.now() + '.jpg',
+    originalImageUrl: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzY2NzA4NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgT3JpZ2luYWwgUGhvdG88L3RleHQ+PC9zdmc+`,
     options: {},
     status: 'processing',
     createdAt: new Date().toISOString(),
+    userUpload: true
   };
 
-  console.log('Photo restoration request:', id);
+  // Store in memory for status checking
+  restorations.set(id, restoration);
+
+  console.log('Photo restoration request:', id, 'Total stored:', restorations.size);
 
   return res.status(201).json(restoration);
 }
