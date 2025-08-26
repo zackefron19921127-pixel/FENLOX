@@ -21,7 +21,7 @@ export default function handler(req, res) {
     
     // Read the request body
     return new Promise((resolve) => {
-      const chunks = [];
+      const chunks: Buffer[] = [];
       
       req.on('data', (chunk) => {
         chunks.push(chunk);
