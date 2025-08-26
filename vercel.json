@@ -6,7 +6,7 @@
   "outputDirectory": "dist/public",
   "functions": {
     "dist/index.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@18.x"
     }
   },
   "routes": [
