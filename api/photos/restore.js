@@ -60,12 +60,23 @@ export default async function handler(req, res) {
     
     try {
       console.log('🎨 Starting AI photo restoration...');
+      console.log('📊 DEBUG: File info:', {
+        filename: photoFile.originalname,
+        size: photoFile.size,
+        mimetype: photoFile.mimetype,
+        bufferLength: fileBuffer.length
+      });
       
       // Use Nero AI API for photo restoration
       const neroApiKey = process.env.NERO_AI_API_KEY;
+      console.log('🔍 DEBUG: Environment check:', {
+        hasApiKey: !!neroApiKey,
+        keyLength: neroApiKey ? neroApiKey.length : 0,
+        keyPrefix: neroApiKey ? neroApiKey.substring(0, 8) + '...' : 'N/A'
+      });
+      
       if (neroApiKey) {
         console.log('🔑 Nero AI API key found, processing with AI...');
-        console.log('🔑 API Key:', neroApiKey.substring(0, 8) + '...');
         
         // Use the correct Nero AI Business API
         const neroResponse = await fetch('https://api.nero.com/biz/api/task', {
@@ -83,10 +94,11 @@ export default async function handler(req, res) {
         });
 
         console.log('📡 Nero AI response status:', neroResponse.status);
+        console.log('📡 DEBUG: Response headers:', Object.fromEntries([...neroResponse.headers.entries()]));
         
         if (neroResponse.ok) {
           const neroResult = await neroResponse.json();
-          console.log('📊 Nero AI response:', JSON.stringify(neroResult, null, 2));
+          console.log('📊 DEBUG: Full Nero AI response:', JSON.stringify(neroResult, null, 2));
           
           if (neroResult.code === 0 && neroResult.data) {
             const taskId = neroResult.data.task_id;
@@ -108,6 +120,7 @@ export default async function handler(req, res) {
                 
                 if (statusResponse.ok) {
                   const statusResult = await statusResponse.json();
+                  console.log('📊 DEBUG: Status poll result:', JSON.stringify(statusResult, null, 2));
                   console.log('📊 Task status:', statusResult.data?.status);
                   
                   if (statusResult.data?.status === 'done' && statusResult.data.result) {
@@ -134,6 +147,12 @@ export default async function handler(req, res) {
       }
       
       // Apply fallback enhancement only if AI didn't work
+      console.log('🔍 DEBUG: Final check before fallback:', {
+        originalUrl: originalImageUrl.substring(0, 50) + '...',
+        restoredUrl: restoredImageUrl.substring(0, 50) + '...',
+        urlsMatch: restoredImageUrl === originalImageUrl
+      });
+      
       if (restoredImageUrl === originalImageUrl) {
         console.log('📸 AI processing failed, applying basic enhancements...');
         
@@ -158,6 +177,12 @@ export default async function handler(req, res) {
       
     } catch (error) {
       console.error('❌ Photo restoration error:', error);
+      console.error('❌ DEBUG: Error stack:', error.stack);
+      console.error('❌ DEBUG: Error details:', {
+        name: error.name,
+        message: error.message,
+        cause: error.cause
+      });
       // Keep original as fallback
     }
 
@@ -175,6 +200,15 @@ export default async function handler(req, res) {
     restorations.set(id, restoration);
 
     console.log("✅ Photo restoration completed:", id);
+    console.log("📊 DEBUG: Final restoration object:", {
+      id: restoration.id,
+      hasOriginalImage: !!restoration.originalImageUrl,
+      hasRestoredImage: !!restoration.restoredImageUrl,
+      originalImageSize: restoration.originalImageUrl.length,
+      restoredImageSize: restoration.restoredImageUrl.length,
+      imagesAreDifferent: restoration.originalImageUrl !== restoration.restoredImageUrl,
+      status: restoration.status
+    });
     console.log("📊 Image extracted: YES (real image data)");
 
     return res.status(201).json(restoration);
