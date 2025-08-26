@@ -187,7 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .catch(async (error) => {
           await storage.updatePhotoRestoration(restoration.id, {
             status: "failed",
-            errorMessage: error.message,
+            errorMessage: error instanceof Error ? error.message : "Processing failed",
           });
         })
         .finally(() => {
@@ -203,7 +203,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error("Photo restoration error:", error);
-      res.status(500).json({ error: "Internal server error", details: error.message });
+      res.status(500).json({ 
+        error: "Internal server error", 
+        details: error instanceof Error ? error.message : "Unknown error" 
+      });
     }
   });
 
