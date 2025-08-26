@@ -70,29 +70,24 @@ const initializeApp = async () => {
   return server;
 };
 
-if (process.env.NODE_ENV === "production") {
-  // Initialize app for production
-  initializeApp();
-} else {
-  // Development mode - setup Vite first, then add API routes on top
-  (async () => {
-    const server = await initializeApp();
-    
+// Force production-like setup to avoid Vite middleware conflicts
+(async () => {
+  const server = await registerRoutes(app);
+  
+  // Only add Vite in actual development
+  if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
-    
-    // Add API routes AFTER Vite setup so they have priority
-    await registerRoutes(app);
+  }
 
-    const port = parseInt(process.env.PORT || '5000', 10);
-    server.listen({
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    }, () => {
-      log(`serving on port ${port}`);
-    });
-  })();
-}
+  const port = parseInt(process.env.PORT || '5000', 10);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
 
 // Export for Vercel
 export default app;
