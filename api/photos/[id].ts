@@ -1,7 +1,7 @@
 // Simple storage for uploaded photos (shared with restore endpoint)
 const uploadedPhotos = new Map();
 
-export default function handler(req, res) {
+export default function handler(req: any, res: any) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -21,22 +21,26 @@ export default function handler(req, res) {
     return res.status(400).json({ error: 'Invalid restoration ID' });
   }
 
-  // Check if this is a user upload (IDs starting with 'usr') or demo
+  // Check if this is a user upload and we have the restoration stored
   const isUserUpload = id.startsWith('usr');
+  console.log('Get restoration:', id, 'User upload:', isUserUpload, 'Has restoration stored:', uploadedPhotos.has(id));
+  
+  if (isUserUpload && uploadedPhotos.has(id)) {
+    // Return the stored restoration from the upload endpoint
+    const restoration = uploadedPhotos.get(id);
+    return res.status(200).json(restoration);
+  }
 
   // Generate unique colors based on ID for variety
   const colors = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
   const colorIndex = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
   const selectedColor = colors[colorIndex];
 
-  // Get uploaded photo if available
-  const uploadedPhotoUrl = uploadedPhotos.get(id);
-
-  // Create restoration data - different for user uploads vs demo
+  // Fallback for demo or unrecognized IDs
   const restoration = {
     id: id,
     originalImageUrl: isUserUpload 
-      ? (uploadedPhotoUrl || `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzY2NzA4NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`)
+      ? `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzY2NzA4NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`
       : '/assets/Damaged_vintage_family_photo_bb3eed1a-KyYu_ktH.png',
     options: {},
     status: 'completed',
@@ -46,8 +50,6 @@ export default function handler(req, res) {
     createdAt: new Date(Date.now() - 30000).toISOString(),
     completedAt: new Date().toISOString()
   };
-
-  console.log('Get restoration:', id, 'User upload:', isUserUpload, 'Has uploaded photo:', !!uploadedPhotoUrl);
 
   return res.json(restoration);
 }
