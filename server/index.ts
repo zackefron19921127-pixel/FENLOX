@@ -6,6 +6,13 @@ import path from "path";
 // Initialize app with middleware
 function createApp() {
   const app = express();
+  
+  // CRITICAL: Intercept ALL API routes before any other middleware
+  app.use('/api/*', (req, res, next) => {
+    console.log(`🚨🚨🚨 API INTERCEPTOR: ${req.method} ${req.url} 🚨🚨🚨`);
+    next();
+  });
+  
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
