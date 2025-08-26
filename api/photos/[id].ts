@@ -1,5 +1,5 @@
-// Simple storage for uploaded photos (shared with restore endpoint)
-const uploadedPhotos = new Map();
+// Import shared storage
+import { uploadedPhotos } from '../shared-storage.js';
 
 export default function handler(req: any, res: any) {
   // Set CORS headers

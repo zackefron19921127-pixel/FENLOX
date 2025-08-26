@@ -1,5 +1,5 @@
-// Simple storage for uploaded photos
-const uploadedPhotos = new Map();
+// Import shared storage
+import { uploadedPhotos } from '../shared-storage.js';
 
 export default async function handler(req: any, res: any) {
   // Set CORS headers
