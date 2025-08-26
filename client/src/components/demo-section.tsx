@@ -1,8 +1,8 @@
 import BeforeAfterSlider from "@/components/before-after-slider";
 import { Card } from "@/components/ui/card";
 import { Sparkles, Palette, Eye, Wrench, Zap } from "lucide-react";
-import beforeImage from "@assets/generated_images/Damaged_vintage_family_photo_bb3eed1a.png";
-import afterImage from "@assets/generated_images/Restored_family_with_older_children_484be814.png";
+import beforeImage from "@assets/generated_images/Damaged_vintage_family_photo_eeacecc8.png";
+import afterImage from "@assets/generated_images/Restored_colorized_family_photo_82541b86.png";
 
 export default function DemoSection() {
   const features = [
