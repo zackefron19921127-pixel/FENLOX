@@ -74,11 +74,14 @@ if (process.env.NODE_ENV === "production") {
   // Initialize app for production
   initializeApp();
 } else {
-  // Development mode - use same routes as production for consistency
+  // Development mode - setup Vite first, then add API routes on top
   (async () => {
-    const server = await registerRoutes(app);
+    const server = await initializeApp();
     
     await setupVite(app, server);
+    
+    // Add API routes AFTER Vite setup so they have priority
+    await registerRoutes(app);
 
     const port = parseInt(process.env.PORT || '5000', 10);
     server.listen({
