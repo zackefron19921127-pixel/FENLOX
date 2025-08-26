@@ -1,6 +1,23 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../server/storage';
-import { insertContactSubmissionSchema } from '../shared/schema';
+import crypto from 'crypto';
+
+// Simple contact storage for serverless
+class ContactStorage {
+  private submissions = new Map();
+  
+  async createContactSubmission(data: any) {
+    const id = crypto.randomUUID();
+    const submission = {
+      id,
+      ...data,
+      createdAt: new Date(),
+    };
+    this.submissions.set(id, submission);
+    return submission;
+  }
+}
+
+const storage = new ContactStorage();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -19,17 +36,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const validationResult = insertContactSubmissionSchema.safeParse(req.body);
+    // Simple validation for required fields
+    const { name, email, message } = req.body;
     
-    if (!validationResult.success) {
+    if (!name || !email || !message) {
       res.status(400).json({ 
-        error: 'Invalid contact data', 
-        details: validationResult.error 
+        error: 'Name, email, and message are required' 
       });
       return;
     }
 
-    const submission = await storage.createContactSubmission(validationResult.data);
+    const submission = await storage.createContactSubmission({ name, email, message });
     res.status(201).json({ 
       message: 'Contact submission received', 
       id: submission.id 

@@ -1,5 +1,16 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
+import crypto from 'crypto';
+
+// Simple in-memory storage for serverless
+class MemStorage {
+  private restorations = new Map();
+  
+  async getPhotoRestoration(id: string) {
+    return this.restorations.get(id) || null;
+  }
+}
+
+const storage = new MemStorage();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers

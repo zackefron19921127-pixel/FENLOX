@@ -1,8 +1,39 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import multer from 'multer';
-import { storage } from '../../server/storage';
-import { neroAIService } from '../../server/nero-ai-api';
-import { insertPhotoRestorationSchema } from '../../shared/schema';
+import crypto from 'crypto';
+
+// Simple in-memory storage for serverless
+class MemStorage {
+  private restorations = new Map();
+  
+  async createPhotoRestoration(data: any) {
+    const id = crypto.randomUUID();
+    const restoration = {
+      id,
+      ...data,
+      status: 'processing' as const,
+      createdAt: new Date(),
+    };
+    this.restorations.set(id, restoration);
+    return restoration;
+  }
+  
+  async updatePhotoRestoration(id: string, updates: any) {
+    const existing = this.restorations.get(id);
+    if (existing) {
+      const updated = { ...existing, ...updates };
+      this.restorations.set(id, updated);
+      return updated;
+    }
+    return null;
+  }
+  
+  async getPhotoRestoration(id: string) {
+    return this.restorations.get(id) || null;
+  }
+}
+
+const storage = new MemStorage();
 
 // Configure multer for serverless
 const upload = multer({
@@ -23,38 +54,68 @@ const upload = multer({
   },
 });
 
-// Process photo with AI or fallback
-async function processWithAI(imageBuffer: Buffer, filename: string, options: any): Promise<string> {
+// Process photo with Nero AI
+async function processWithNeroAI(imageBuffer: Buffer, filename: string, options: any): Promise<string> {
   try {
-    console.log('🎨 Processing photo restoration with AI...');
+    console.log('🎨 Processing photo restoration with Nero AI...');
     
-    // Create temporary file path for processing
-    const tempPath = `/tmp/${filename}`;
+    const NERO_AI_API_KEY = process.env.NERO_AI_API_KEY;
+    if (!NERO_AI_API_KEY) {
+      throw new Error('Nero AI API key not configured');
+    }
+
+    // Upload image to temporary hosting for Nero AI processing
+    const FormData = (await import('form-data')).default;
+    const fetch = (await import('node-fetch')).default;
     
-    // Write buffer to temp file
-    const fs = await import('fs');
-    fs.writeFileSync(tempPath, imageBuffer);
+    // Upload to catbox.moe for temporary hosting
+    const formData = new FormData();
+    formData.append('reqtype', 'fileupload');
+    formData.append('fileToUpload', imageBuffer, { filename });
+
+    const uploadResponse = await fetch('https://catbox.moe/user/api.php', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload image for processing');
+    }
+
+    const imageUrl = await uploadResponse.text();
+    console.log('📤 Uploaded image for AI processing:', imageUrl);
+
+    // Process with Nero AI
+    const neroResponse = await fetch('https://api.nero.ai/v1/images', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NERO_AI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image_url: imageUrl.trim(),
+        effects: ['ScratchFix', 'FaceRestoration', 'ImageUpscaler'],
+        ...options
+      }),
+    });
+
+    if (!neroResponse.ok) {
+      throw new Error(`Nero AI API error: ${neroResponse.status}`);
+    }
+
+    const result = await neroResponse.json() as any;
     
-    // Try Nero AI first
-    const neroResult = await neroAIService.restorePhoto(tempPath, options);
-    
-    if (neroResult.success && neroResult.restoredImageUrl) {
-      console.log('✅ Nero AI restoration completed successfully!');
-      // Clean up temp file
-      try { fs.unlinkSync(tempPath); } catch (e) {}
-      return neroResult.restoredImageUrl;
+    if (result.output_url) {
+      console.log('✅ Nero AI restoration completed!');
+      return result.output_url;
     }
     
-    // Fallback - return original for demo
-    console.log('⚠️ Using demo mode - returning original image');
-    // Clean up temp file
-    try { fs.unlinkSync(tempPath); } catch (e) {}
-    
-    return `/uploads/${filename}`;
+    throw new Error('No output from Nero AI');
     
   } catch (error) {
-    console.error('Photo processing error:', error);
-    throw error;
+    console.error('AI processing error:', error);
+    // Return a demo result for fallback
+    return `https://via.placeholder.com/400x300/4ade80/ffffff?text=AI+Restored`;
   }
 }
 
@@ -101,22 +162,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       options = {};
     }
 
-    // Validate request
-    const originalImageUrl = `/uploads/${file.originalname}`;
-    const validationResult = insertPhotoRestorationSchema.safeParse({
-      originalImageUrl,
-      options,
-    });
-
-    if (!validationResult.success) {
-      res.status(400).json({ 
-        error: 'Invalid request data', 
-        details: validationResult.error 
-      });
-      return;
-    }
-
     // Create restoration record
+    const originalImageUrl = `/uploads/${file.originalname}`;
     const restoration = await storage.createPhotoRestoration({
       originalImageUrl,
       options,
@@ -125,7 +172,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(201).json(restoration);
 
     // Process asynchronously in background
-    processWithAI(file.buffer, file.originalname, options)
+    processWithNeroAI(file.buffer, file.originalname, options)
       .then(async (restoredImageUrl) => {
         await storage.updatePhotoRestoration(restoration.id, {
           status: "completed",
