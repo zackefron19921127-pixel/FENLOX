@@ -48,8 +48,8 @@ export default async function handler(req: any, res: any) {
     
     console.log('📦 Form parsing complete. Files found:', Object.keys(files));
     
-    // Get the uploaded file
-    const uploadedFile = files.file;
+    // Get the uploaded file (frontend sends it as "photo")
+    const uploadedFile = files.photo;
     if (uploadedFile) {
       console.log('📸 File details:', {
         originalFilename: uploadedFile.originalFilename,
