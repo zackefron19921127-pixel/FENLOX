@@ -1,10 +1,6 @@
 {
   "builds": [
     {
-      "src": "server/index.ts",
-      "use": "@vercel/node"
-    },
-    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -12,15 +8,18 @@
       }
     }
   ],
+  "functions": {
+    "api/photos/restore.ts": {
+      "maxDuration": 30
+    },
+    "api/photos/[id].ts": {
+      "maxDuration": 10
+    },
+    "api/contact.ts": {
+      "maxDuration": 10
+    }
+  },
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server/index.ts"
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "/server/index.ts"
-    },
     {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
