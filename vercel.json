@@ -12,10 +12,5 @@
   "env": {
     "NODE_ENV": "production",
     "NERO_AI_API_KEY": "4CI5GNA0UD2UWFDZK5MPCUQ1"
-  },
-  "functions": {
-    "server/index.ts": {
-      "maxDuration": 60
-    }
   }
 }
