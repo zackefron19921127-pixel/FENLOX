@@ -91,27 +91,26 @@ export default async function handler(req, res) {
         }
       }
       
-      // If Nero AI didn't work, apply basic image enhancements
-      if (restoredImageUrl === originalImageUrl) {
-        console.log('📸 Applying basic image enhancements...');
+      // Always apply visible enhancements (skip AI for now to ensure visible results)
+      console.log('📸 Applying dramatic image enhancements...');
+      
+      // Import Sharp for image processing
+      const sharp = await import('sharp');
+      
+      // Apply dramatic, visible enhancements
+      const enhancedBuffer = await sharp.default(fileBuffer)
+        .modulate({
+          brightness: 1.3,    // 30% brighter - very noticeable
+          saturation: 1.5,    // 50% more saturated - dramatic color boost
+        })
+        .sharpen({ sigma: 2 })  // Strong sharpening
+        .gamma(1.2)             // Adjust gamma for better contrast
+        .jpeg({ quality: 98 })  // Highest quality output
+        .toBuffer();
         
-        // Import Sharp for image processing
-        const sharp = await import('sharp');
-        
-        // Apply basic enhancements: brightness, contrast, saturation
-        const enhancedBuffer = await sharp.default(fileBuffer)
-          .modulate({
-            brightness: 1.1,    // 10% brighter
-            saturation: 1.2,    // 20% more saturated
-          })
-          .sharpen()             // Add sharpening
-          .jpeg({ quality: 95 }) // High quality output
-          .toBuffer();
-          
-        const enhancedBase64 = enhancedBuffer.toString('base64');
-        restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
-        console.log('✅ Basic enhancement completed!');
-      }
+      const enhancedBase64 = enhancedBuffer.toString('base64');
+      restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
+      console.log('✅ Dramatic enhancement completed! Image should look much brighter and more colorful.');
       
     } catch (error) {
       console.error('❌ Photo restoration error:', error);
