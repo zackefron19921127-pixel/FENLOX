@@ -1,3 +1,6 @@
+// Simple storage for uploaded photos (shared with restore endpoint)
+const uploadedPhotos = new Map();
+
 export default function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,11 +29,14 @@ export default function handler(req, res) {
   const colorIndex = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
   const selectedColor = colors[colorIndex];
 
+  // Get uploaded photo if available
+  const uploadedPhotoUrl = uploadedPhotos.get(id);
+
   // Create restoration data - different for user uploads vs demo
   const restoration = {
     id: id,
     originalImageUrl: isUserUpload 
-      ? `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzY2NzA4NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`
+      ? (uploadedPhotoUrl || `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzY2NzA4NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`)
       : '/assets/Damaged_vintage_family_photo_bb3eed1a-KyYu_ktH.png',
     options: {},
     status: 'completed',
@@ -41,7 +47,7 @@ export default function handler(req, res) {
     completedAt: new Date().toISOString()
   };
 
-  console.log('Get restoration:', id, 'User upload:', isUserUpload, 'Color:', selectedColor);
+  console.log('Get restoration:', id, 'User upload:', isUserUpload, 'Has uploaded photo:', !!uploadedPhotoUrl);
 
   return res.json(restoration);
 }
