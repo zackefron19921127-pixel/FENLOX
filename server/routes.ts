@@ -9,29 +9,31 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Configure multer for file uploads
+// Configure multer for file uploads (with fallback for serverless)
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: "uploads/",
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).substr(2);
-      const ext = path.extname(file.originalname) || '.jpg';
-      cb(null, uniqueSuffix + ext);
-    }
-  }),
+  storage: process.env.NODE_ENV === "production" 
+    ? multer.memoryStorage() 
+    : multer.diskStorage({
+        destination: "uploads/",
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).substr(2);
+          const ext = path.extname(file.originalname) || '.jpg';
+          cb(null, uniqueSuffix + ext);
+        }
+      }),
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB limit (Nero AI maximum)
   },
   fileFilter: (req, file, cb) => {
-    // Support all major image formats that Nero AI accepts
-    const allowedTypes = /jpeg|jpg|png|bmp|webp|tiff|tif|ico|jfif|jfi|jpe|jif/;
+    // Support all major image formats that Nero AI accepts + SVG
+    const allowedTypes = /jpeg|jpg|png|bmp|webp|tiff|tif|ico|jfif|jfi|jpe|jif|svg/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = file.mimetype.startsWith('image/');
     
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb(new Error("Supported formats: JPG, PNG, BMP, WEBP, TIFF, ICO, JFIF"));
+      cb(new Error("Please upload an image file (JPG, PNG, BMP, WEBP, TIFF, SVG, ICO)"));
     }
   },
 });
@@ -98,9 +100,13 @@ async function processWithAI(imagePath: string, options: any): Promise<string> {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Ensure uploads directory exists
-  if (!fs.existsSync("uploads")) {
-    fs.mkdirSync("uploads");
+  // Ensure uploads directory exists (with error handling for serverless)
+  try {
+    if (!fs.existsSync("uploads")) {
+      fs.mkdirSync("uploads", { recursive: true });
+    }
+  } catch (error) {
+    console.log("Note: uploads directory will be handled by serverless environment");
   }
 
   // Serve uploaded files
@@ -127,28 +133,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         options = {};
       }
       
+      // Handle file path for both development and production
+      let filePath: string;
+      let originalImageUrl: string;
+      
+      if (process.env.NODE_ENV === "production") {
+        // In production, handle memory storage
+        filePath = `/tmp/${req.file.originalname}`;
+        originalImageUrl = `/uploads/${req.file.originalname}`;
+        // Write buffer to temporary file for processing
+        fs.writeFileSync(filePath, req.file.buffer);
+      } else {
+        // In development, use disk storage
+        filePath = req.file.path;
+        originalImageUrl = `/uploads/${req.file.filename}`;
+      }
+      
       // Validate options
       const validationResult = insertPhotoRestorationSchema.safeParse({
-        originalImageUrl: `/uploads/${req.file.filename}`,
+        originalImageUrl,
         options,
       });
 
       if (!validationResult.success) {
         // Clean up uploaded file
-        fs.unlinkSync(req.file.path);
+        try {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (e) {
+          console.log("File cleanup skipped in serverless environment");
+        }
         return res.status(400).json({ error: "Invalid request data", details: validationResult.error });
       }
 
       // Create restoration record
       const restoration = await storage.createPhotoRestoration({
-        originalImageUrl: `/uploads/${req.file.filename}`,
+        originalImageUrl,
         options,
       });
 
       res.status(201).json(restoration);
 
       // Process asynchronously
-      processWithAI(req.file.path, options)
+      processWithAI(filePath, options)
         .then(async (restoredImageUrl) => {
           await storage.updatePhotoRestoration(restoration.id, {
             status: "completed",
@@ -161,14 +189,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             status: "failed",
             errorMessage: error.message,
           });
+        })
+        .finally(() => {
+          // Clean up temporary file
+          try {
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          } catch (e) {
+            console.log("File cleanup skipped in serverless environment");
+          }
         });
 
     } catch (error) {
       console.error("Photo restoration error:", error);
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error", details: error.message });
     }
   });
 
