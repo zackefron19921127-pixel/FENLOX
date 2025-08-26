@@ -118,8 +118,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   app.use("/uploads", express.static("uploads"));
 
-  // Upload and process photo
-  app.post("/api/photos/restore", upload.single("photo"), async (req, res) => {
+  // Upload and process photo (only in production - development uses Vercel API routes)
+  if (process.env.NODE_ENV === "production") {
+    app.post("/api/photos/restore", upload.single("photo"), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No photo uploaded" });
@@ -208,10 +209,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: error instanceof Error ? error.message : "Unknown error" 
       });
     }
-  });
+    });
+  }
 
-  // Get restoration status
-  app.get("/api/photos/restore/:id", async (req, res) => {
+  // Get restoration status (only in production - development uses Vercel API routes)
+  if (process.env.NODE_ENV === "production") {
+    app.get("/api/photos/restore/:id", async (req, res) => {
     try {
       const restoration = await storage.getPhotoRestoration(req.params.id);
       if (!restoration) {
@@ -222,7 +225,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Get restoration error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  });
+    });
+  }
 
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
