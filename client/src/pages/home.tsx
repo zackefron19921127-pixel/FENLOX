@@ -13,9 +13,19 @@ import TextType from "@/components/text-type";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
+      {/* Background Orb */}
+      <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
+        <Orb
+          hoverIntensity={0.5}
+          rotateOnHover={true}
+          hue={0}
+          forceHoverState={false}
+        />
+      </div>
+      
       <Header />
-      <main>
+      <main className="relative z-10">
           <HeroSection />
           <DemoSection />
           <section id="upload" className="py-20 bg-gray-50">
