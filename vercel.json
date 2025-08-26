@@ -9,34 +9,10 @@
     }
   ],
   "functions": {
-    "api/photos/restore.ts": {
-      "maxDuration": 30
-    },
-    "api/photos/[id].ts": {
-      "maxDuration": 10
-    },
-    "api/contact.ts": {
-      "maxDuration": 10
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@20"
     }
   },
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(manifest\\.json|robots\\.txt|sitemap\\.xml|favicon\\.svg)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
   "env": {
     "NODE_ENV": "production",
     "NERO_AI_API_KEY": "4CI5GNA0UD2UWFDZK5MPCUQ1"
