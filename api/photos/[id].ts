@@ -21,10 +21,10 @@ export default function handler(req, res) {
   // Simple mock restoration data
   const restoration = {
     id: id,
-    originalImageUrl: '/uploads/demo-' + Date.now() + '.jpg',
+    originalImageUrl: '/assets/Damaged_vintage_family_photo_bb3eed1a-KyYu_ktH.png',
     options: {},
     status: 'completed',
-    restoredImageUrl: 'https://via.placeholder.com/400x300/10b981/ffffff?text=AI+Restored+Photo',
+    restoredImageUrl: '/assets/Restored_colorized_family_photo_929282a6-CjFYSG0H.png',
     createdAt: new Date(Date.now() - 30000).toISOString(),
     completedAt: new Date().toISOString()
   };
