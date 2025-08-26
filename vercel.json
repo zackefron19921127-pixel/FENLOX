@@ -1,7 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "startCommand": "npm start",
+  "outputDirectory": "dist/public",
   "env": {
     "NODE_ENV": "production",
     "NERO_AI_API_KEY": "4CI5GNA0UD2UWFDZK5MPCUQ1"
