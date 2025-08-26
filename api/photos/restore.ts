@@ -79,10 +79,8 @@ export default async function handler(req: any, res: any) {
       }
     }
     
-    // Create restoration record and immediately complete it with the processed image
-    const restoredImageUrl = originalImageUrl.includes('svg') 
-      ? `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNjM2NmYxIi8+PHRleHQgeD0iNTAlIiB5PSI0MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5BSSBSZXN0b3JlZDwvdGV4dD48dGV4dCB4PSI1MCUiIHk9IjYwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgUGhvdG88L3RleXQ+PC9zdmc+` 
-      : originalImageUrl; // For real uploads, return the same image as "restored" for demo
+    // For demo purposes, just return the uploaded image as both original and "restored"
+    const restoredImageUrl = originalImageUrl;
 
     const restoration = {
       id: id,
