@@ -1,0 +1,48 @@
+⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: undefined
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: false
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: undefined
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: false
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 🚀 Starting photo upload: images.jpg 10055 image/jpeg
+index-C4mWYzVP.js:415 📤 Sending upload request to /api/photos/restore
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: undefined
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: false
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: undefined
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: false
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: undefined
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: false
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 📨 Upload response status: 201
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: undefined
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: false
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 ✅ Upload successful, restoration ID: usrmesi76j4zzy2xi
+index-C4mWYzVP.js:415 📊 Restoration data: Object
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: undefined
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: false
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 🔄 Polling restoration status for ID: usrmesi76j4zzy2xi
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-C4mWYzVP.js:415 🔄 Continuing to poll...
+index-C4mWYzVP.js:415 📨 Polling response status: 200
+index-C4mWYzVP.js:415 📊 Polling data received: Object
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: completed
+index-C4mWYzVP.js:415 ✅ Stopping polling - restoration complete
+index-C4mWYzVP.js:415 🎯 Upload zone check - restoration data: Object
+index-C4mWYzVP.js:415 🎯 Upload zone check - isCompleted: true
+index-C4mWYzVP.js:415 🎨 Rendering results component with data: Object
+index-C4mWYzVP.js:415 🚨 STILL SHOWING PLACEHOLDER! Image extraction failed on server
+index-C4mWYzVP.js:415 ⏰ Checking if should continue polling. Status: completed
+index-C4mWYzVP.js:415 ✅ Stopping polling - restoration complete
