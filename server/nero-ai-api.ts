@@ -259,13 +259,13 @@ export class NeroAIService {
         pipeline = pipeline
           .median(2)           // Remove scratches and artifacts
           .blur(0.3)           // Slight blur to smooth damage
-          .sharpen({ sigma: 1.5, flat: 1, jagged: 2 }); // Re-sharpen
+          .sharpen(1.5, 1, 2); // Re-sharpen
       }
       
       if (options.faceEnhancement) {
         // Enhanced facial detail processing
         pipeline = pipeline
-          .sharpen({ sigma: 2.0, flat: 1.5, jagged: 3 })
+          .sharpen(2.0, 1.5, 3)
           .modulate({ 
             brightness: 1.15,   // 15% brighter for faces
             saturation: 1.25,   // 25% more saturated
@@ -300,7 +300,7 @@ export class NeroAIService {
       pipeline = pipeline
         .gamma(1.15)          // Better gamma correction
         .normalise()          // Auto-adjust contrast
-        .sharpen({ sigma: 1.0, flat: 1, jagged: 2 }) // Final sharpening
+        .sharpen(1.0, 1, 2) // Final sharpening
         .jpeg({ 
           quality: 98,        // Maximum quality output
           progressive: true,

@@ -110,7 +110,7 @@ export class ReplicateService {
       }
     );
     
-    return Array.isArray(output) ? output[0] : output as string;
+    return Array.isArray(output) ? output[0] : (output as unknown) as string;
   }
 
   private async applyRealESRGAN(imageUrl: string, scale: number, faceEnhance: boolean = false): Promise<string> {
@@ -127,7 +127,7 @@ export class ReplicateService {
       }
     );
     
-    return Array.isArray(output) ? output[0] : output as string;
+    return Array.isArray(output) ? output[0] : (output as unknown) as string;
   }
 
   private async applyColorization(imageUrl: string): Promise<string> {
@@ -142,7 +142,7 @@ export class ReplicateService {
       }
     );
     
-    return Array.isArray(output) ? output[0] : output as string;
+    return Array.isArray(output) ? output[0] : (output as unknown) as string;
   }
 
   private async downloadResult(resultUrl: string, originalPath: string): Promise<string> {
