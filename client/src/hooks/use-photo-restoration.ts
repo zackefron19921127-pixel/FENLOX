@@ -90,13 +90,23 @@ export function usePhotoRestoration() {
     },
     refetchInterval: (query) => {
       const data = query.state.data as PhotoRestoration | undefined;
-      console.log("⏰ Checking if should continue polling. Status:", data?.status);
+      
+      // Only log when we have actual status data to reduce noise
+      if (data?.status) {
+        console.log("⏰ Checking if should continue polling. Status:", data.status);
+      }
+      
       // Stop polling if completed or failed
       if (data?.status === "completed" || data?.status === "failed") {
         console.log("✅ Stopping polling - restoration complete");
         return false;
       }
-      console.log("🔄 Continuing to poll...");
+      
+      // Only log continuation when we have a status (not undefined)
+      if (data?.status) {
+        console.log("🔄 Continuing to poll...");
+      }
+      
       return 2000; // Poll every 2 seconds
     },
     refetchIntervalInBackground: false,

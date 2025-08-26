@@ -86,8 +86,11 @@ export default function UploadZone() {
   // Force component to check for completed restoration
   const isCompleted = restorationData?.status === "completed" && !!restorationData?.restoredImageUrl;
   
-  console.log("🎯 Upload zone check - restoration data:", restorationData);
-  console.log("🎯 Upload zone check - isCompleted:", isCompleted);
+  // Only log when we have actual data or status changes to reduce noise
+  if (restorationData && restorationData.status) {
+    console.log("🎯 Upload zone check - restoration data:", restorationData);
+    console.log("🎯 Upload zone check - isCompleted:", isCompleted);
+  }
   
   if (isCompleted) {
     console.log("🎨 Rendering results component with data:", {

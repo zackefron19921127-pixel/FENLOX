@@ -97,7 +97,7 @@ if (process.env.NODE_ENV === "production") {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     });
     
-    app.post("/api/photos/restore", upload.single("photo"), restoreHandler);
+    app.post("/api/photos/restore", upload.single("photo"), restoreHandler as any);
     app.get("/api/photos/:id", (req, res) => {
       req.query = { id: req.params.id };
       getPhotoHandler(req, res);
