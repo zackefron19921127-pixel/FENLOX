@@ -83,15 +83,17 @@ async function processWithAI(imagePath: string, options: any): Promise<string> {
     console.log('✓ Demo restoration completed!');
     console.log('💡 Add NERO_AI_API_KEY to enable real AI processing.');
     
-    // Copy the original image as the "restored" version for demo
-    const timestamp = Date.now();
-    const originalExt = path.extname(imagePath) || '.jpg';
-    const demoPath = `uploads/demo-restored-${timestamp}${originalExt}`;
+    // For demo, read the original image and return as base64 data URL
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64Data = imageBuffer.toString('base64');
     
-    fs.copyFileSync(imagePath, demoPath);
+    // Determine mime type from file extension
+    const ext = path.extname(imagePath).toLowerCase();
+    const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+    const dataUrl = `data:${mimeType};base64,${base64Data}`;
     
-    console.log(`Created demo result: ${demoPath}`);
-    return `/${demoPath}`;
+    console.log(`Created demo result as base64 data URL (${imageBuffer.length} bytes)`);
+    return dataUrl;
     
   } catch (error) {
     console.error('Photo processing error:', error);
@@ -140,13 +142,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (process.env.NODE_ENV === "production") {
         // In production, handle memory storage
         filePath = `/tmp/${req.file.originalname}`;
-        originalImageUrl = `/uploads/${req.file.originalname}`;
+        // Convert buffer to base64 data URL
+        const base64Data = req.file.buffer.toString('base64');
+        originalImageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
         // Write buffer to temporary file for processing
         fs.writeFileSync(filePath, req.file.buffer);
       } else {
-        // In development, use disk storage
+        // In development, use disk storage  
         filePath = req.file.path;
-        originalImageUrl = `/uploads/${req.file.filename}`;
+        // Read file and convert to base64 data URL
+        const fileBuffer = fs.readFileSync(filePath);
+        const base64Data = fileBuffer.toString('base64');
+        originalImageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
       }
       
       // Validate options
