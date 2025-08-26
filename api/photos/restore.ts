@@ -32,6 +32,8 @@ export default async function handler(req: any, res: any) {
     const form = new IncomingForm({
       maxFileSize: 10 * 1024 * 1024, // 10MB
       keepExtensions: true,
+      allowEmptyFiles: true, // Allow files to debug what's happening
+      multiples: false,
     });
     
     const { files } = await new Promise<{ files: any }>((resolve, reject) => {
@@ -47,10 +49,11 @@ export default async function handler(req: any, res: any) {
     });
     
     console.log('📦 Form parsing complete. Files found:', Object.keys(files));
+    console.log('🔍 All files received:', files);
     
-    // Get the uploaded file (frontend sends it as "photo")
+    // Get the uploaded file (frontend sends it as "photo")  
     const uploadedFile = files.photo;
-    if (uploadedFile) {
+    if (uploadedFile && uploadedFile.size > 0) {
       console.log('📸 File details:', {
         originalFilename: uploadedFile.originalFilename,
         mimetype: uploadedFile.mimetype,
