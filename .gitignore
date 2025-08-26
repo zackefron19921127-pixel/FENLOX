@@ -96,4 +96,4 @@ jspm_packages/
 .tern-port
 
 # Stores VSCode versions used for testing VSCode extensions
-.vscode-test
+.vscode-test".local/state/replit/agent/filesystem/filesystem_state.json" 
