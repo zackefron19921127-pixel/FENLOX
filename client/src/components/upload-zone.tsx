@@ -61,9 +61,9 @@ export default function UploadZone() {
       return;
     }
 
-    // Validate file size (100MB)
-    if (file.size > 100 * 1024 * 1024) {
-      alert('File size must be less than 100MB.');
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB.');
       return;
     }
 
@@ -180,7 +180,7 @@ export default function UploadZone() {
           </div>
           <h3 className="text-2xl font-semibold text-gray-900 mb-4">Upload Your Photo</h3>
           <p className="text-gray-600 mb-6">Drag and drop your photo here or click to browse</p>
-          <p className="text-sm text-gray-500">Supports JPG, JPEG, PNG, BMP, WEBP, JFIF, JFI, JPE, JIF, HEIC, HEIF up to 100MB</p>
+          <p className="text-sm text-gray-500">Supports JPG, JPEG, PNG, BMP, WEBP, JFIF, JFI, JPE, JIF, HEIC, HEIF up to 10MB</p>
         </div>
       )}
 
