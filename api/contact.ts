@@ -39,7 +39,7 @@ function sanitizeInput(input: string, maxLength: number = 1000): string {
   return input.trim().substring(0, maxLength);
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
   const startTime = Date.now();
   
   try {

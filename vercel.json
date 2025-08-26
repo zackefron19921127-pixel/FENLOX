@@ -1,18 +1,6 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/public"
-      }
-    }
-  ],
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node@20"
-    }
-  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/public",
   "env": {
     "NODE_ENV": "production",
     "NERO_AI_API_KEY": "4CI5GNA0UD2UWFDZK5MPCUQ1"
