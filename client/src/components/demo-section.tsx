@@ -32,7 +32,7 @@ export default function DemoSection() {
     <section className="py-12 md:py-20 bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="container mx-auto px-4 md:px-8 lg:px-12 xl:px-16 max-w-6xl">
         <div className="text-center mb-12 md:mb-16">
-          <div className="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm px-4 md:px-6 py-2 md:py-3 rounded-full mb-4 md:mb-6">
+          <div className="inline-flex items-center space-x-2 bg-gray-100/80 backdrop-blur-sm px-4 md:px-6 py-2 md:py-3 rounded-full mb-4 md:mb-6">
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
             <span className="text-xs md:text-sm font-semibold text-gray-700">Live Demo</span>
           </div>
@@ -62,7 +62,7 @@ export default function DemoSection() {
         {/* Features Grid - Mobile Optimized */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-4 md:p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <Card key={index} className="bg-gray-100/90 backdrop-blur-sm border-0 shadow-lg p-4 md:p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4">
                 <feature.icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
               </div>

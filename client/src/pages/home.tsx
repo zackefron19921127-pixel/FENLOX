@@ -13,7 +13,7 @@ import TextType from "@/components/text-type";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className="min-h-screen bg-gray-50 relative">
       {/* Background Orb */}
       <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
         <Orb

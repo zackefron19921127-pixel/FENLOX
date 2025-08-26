@@ -78,7 +78,7 @@ export default function UploadResultsSlider({
         </p>
       </div>
 
-      <Card className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 backdrop-blur-sm border border-gray-100">
+      <Card className="bg-gray-100 rounded-3xl shadow-2xl p-6 md:p-8 backdrop-blur-sm border border-gray-200">
         <div
           ref={containerRef}
           className="relative overflow-hidden rounded-2xl bg-gray-100 slider-container cursor-col-resize select-none mb-6"
@@ -128,7 +128,7 @@ export default function UploadResultsSlider({
             onMouseDown={handleMouseDown}
             data-testid="upload-slider-handle"
           >
-            <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center border-2 border-white/50 ${!isDragging ? 'transition-all duration-200 hover:scale-110 hover:shadow-2xl' : ''}`}>
+            <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gray-200/90 backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center border-2 border-gray-300/50 ${!isDragging ? 'transition-all duration-200 hover:scale-110 hover:shadow-2xl' : ''}`}>
               <ArrowLeftRight className="w-5 h-5 text-gray-600" />
             </div>
           </div>
