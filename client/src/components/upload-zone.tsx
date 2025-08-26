@@ -93,9 +93,16 @@ export default function UploadZone() {
     console.log("🎨 Rendering results component with data:", {
       originalImage: restorationData.originalImageUrl?.substring(0, 100) + "...",
       restoredImage: restorationData.restoredImageUrl?.substring(0, 100) + "...",
-      options: restorationData.options,
-      fullData: restorationData
+      isPlaceholder: restorationData.originalImageUrl?.includes('svg'),
+      options: restorationData.options
     });
+    
+    // Show exactly what we're displaying
+    if (restorationData.originalImageUrl?.includes('svg')) {
+      console.log("🚨 STILL SHOWING PLACEHOLDER! Image extraction failed on server");
+    } else {
+      console.log("✅ Real image data found!");
+    }
     
     // Scroll to results after a short delay to ensure rendering
     setTimeout(() => {

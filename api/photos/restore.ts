@@ -1,5 +1,7 @@
 // Import shared storage
 import { uploadedPhotos } from '../shared-storage.js';
+import { IncomingForm } from 'formidable';
+import { readFileSync } from 'fs';
 
 export default async function handler(req: any, res: any) {
   // Set CORS headers
@@ -21,52 +23,45 @@ export default async function handler(req: any, res: any) {
     const random = Math.random().toString(36).substring(2, 8);
     const id = 'usr' + timestamp + random;
     
-    // Read the entire request body
-    const buffers: Buffer[] = [];
-    for await (const chunk of req) {
-      buffers.push(chunk);
-    }
-    const buffer = Buffer.concat(buffers);
-    
-    console.log('📦 Received buffer size:', buffer.length);
+    console.log('🚀 Processing upload with ID:', id);
     
     // Default placeholder
     let originalImageUrl = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTJlOGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzQ3NTU2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`;
     
-    if (buffer.length > 0) {
-      console.log('🔍 Searching for image in FormData...');
+    // Use formidable to properly parse multipart FormData
+    const form = new IncomingForm({
+      maxFileSize: 10 * 1024 * 1024, // 10MB
+      keepExtensions: true,
+    });
+    
+    const { files } = await new Promise<{ files: any }>((resolve, reject) => {
+      form.parse(req, (err, fields, files) => {
+        if (err) reject(err);
+        else resolve({ files });
+      });
+    });
+    
+    console.log('📦 Form parsing complete. Files found:', Object.keys(files));
+    
+    // Get the uploaded file
+    const uploadedFile = files.file;
+    if (uploadedFile) {
+      console.log('📸 File details:', {
+        originalFilename: uploadedFile.originalFilename,
+        mimetype: uploadedFile.mimetype,
+        size: uploadedFile.size,
+        filepath: uploadedFile.filepath
+      });
       
-      // Look for JPEG signature in FormData
-      const jpegStart = buffer.indexOf(Buffer.from([0xFF, 0xD8, 0xFF]));
-      if (jpegStart !== -1) {
-        console.log('📸 Found JPEG at position:', jpegStart);
-        const jpegEnd = buffer.indexOf(Buffer.from([0xFF, 0xD9]), jpegStart + 10);
-        if (jpegEnd !== -1) {
-          const imageBuffer = buffer.slice(jpegStart, jpegEnd + 2);
-          const base64Data = imageBuffer.toString('base64');
-          originalImageUrl = `data:image/jpeg;base64,${base64Data}`;
-          console.log('✅ JPEG extracted successfully, size:', imageBuffer.length);
-        }
-      }
+      // Read the file and convert to base64
+      const fileBuffer = readFileSync(uploadedFile.filepath);
+      const base64Data = fileBuffer.toString('base64');
+      const mimeType = uploadedFile.mimetype || 'image/jpeg';
+      originalImageUrl = `data:${mimeType};base64,${base64Data}`;
       
-      // Look for PNG signature in FormData  
-      const pngSignature = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-      const pngStart = buffer.indexOf(pngSignature);
-      if (pngStart !== -1 && jpegStart === -1) {
-        console.log('📸 Found PNG at position:', pngStart);
-        const iendStart = buffer.indexOf(Buffer.from('IEND'), pngStart + 20);
-        if (iendStart !== -1) {
-          const imageBuffer = buffer.slice(pngStart, iendStart + 8);
-          const base64Data = imageBuffer.toString('base64');
-          originalImageUrl = `data:image/png;base64,${base64Data}`;
-          console.log('✅ PNG extracted successfully, size:', imageBuffer.length);
-        }
-      }
-      
-      if (jpegStart === -1 && pngStart === -1) {
-        console.log('❌ No image signatures found in buffer');
-        console.log('🔍 Buffer preview:', buffer.toString('utf8', 0, Math.min(200, buffer.length)));
-      }
+      console.log('✅ Image processed successfully! Size:', fileBuffer.length, 'Type:', mimeType);
+    } else {
+      console.log('❌ No file found in FormData');
     }
     
     // For demo purposes, just return the uploaded image as both original and "restored"
