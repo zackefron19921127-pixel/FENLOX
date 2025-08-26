@@ -174,10 +174,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid request data", details: validationResult.error });
       }
 
+      // Debug: Log what we're about to store
+      console.log("🔍 About to store restoration with:");
+      console.log("- originalImageUrl type:", typeof originalImageUrl);
+      console.log("- originalImageUrl starts with:", originalImageUrl.substring(0, 50));
+      console.log("- originalImageUrl contains SVG:", originalImageUrl.includes('svg'));
+      
       // Create restoration record
       const restoration = await storage.createPhotoRestoration({
         originalImageUrl,
         options,
+      });
+      
+      console.log("✅ Stored restoration:", {
+        id: restoration.id,
+        originalImageUrl: restoration.originalImageUrl.substring(0, 50),
+        containsSvg: restoration.originalImageUrl.includes('svg')
       });
 
       res.status(201).json(restoration);
@@ -220,10 +232,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get restoration status  
   app.get("/api/photos/:id", async (req, res) => {
     try {
+      console.log("🔍 Getting restoration for ID:", req.params.id);
       const restoration = await storage.getPhotoRestoration(req.params.id);
       if (!restoration) {
+        console.log("❌ Restoration not found for ID:", req.params.id);
         return res.status(404).json({ error: "Restoration not found" });
       }
+      
+      console.log("✅ Found restoration:", {
+        id: restoration.id,
+        status: restoration.status,
+        originalImageUrl: restoration.originalImageUrl.substring(0, 50),
+        containsSvg: restoration.originalImageUrl.includes('svg')
+      });
+      
       res.json(restoration);
     } catch (error) {
       console.error("Get restoration error:", error);
