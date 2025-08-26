@@ -55,8 +55,68 @@ export default async function handler(req, res) {
     
     console.log('✅ Image converted to base64 successfully! Size:', fileBuffer.length);
 
-    // For demo, return the uploaded image as both original and "restored"
-    const restoredImageUrl = originalImageUrl;
+    // Process the image with Nero AI for real restoration
+    let restoredImageUrl = originalImageUrl; // fallback to original
+    
+    try {
+      console.log('🎨 Starting AI photo restoration...');
+      
+      // Use Nero AI API for photo restoration
+      const neroApiKey = process.env.NERO_AI_API_KEY;
+      if (neroApiKey) {
+        console.log('🔑 Nero AI API key found, processing with AI...');
+        
+        const neroResponse = await fetch('https://api.nero.ai/v1/images/enhance', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${neroApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            image: base64Data,
+            effects: ['ScratchFix', 'FaceRestoration', 'ImageUpscaler'],
+            output_format: 'jpeg',
+            quality: 95
+          })
+        });
+
+        if (neroResponse.ok) {
+          const neroResult = await neroResponse.json();
+          if (neroResult.enhanced_image) {
+            restoredImageUrl = `data:image/jpeg;base64,${neroResult.enhanced_image}`;
+            console.log('✨ AI restoration completed successfully!');
+          }
+        } else {
+          console.log('⚠️ Nero AI failed, using fallback processing...');
+        }
+      }
+      
+      // If Nero AI didn't work, apply basic image enhancements
+      if (restoredImageUrl === originalImageUrl) {
+        console.log('📸 Applying basic image enhancements...');
+        
+        // Import Sharp for image processing
+        const sharp = await import('sharp');
+        
+        // Apply basic enhancements: brightness, contrast, saturation
+        const enhancedBuffer = await sharp.default(fileBuffer)
+          .modulate({
+            brightness: 1.1,    // 10% brighter
+            saturation: 1.2,    // 20% more saturated
+          })
+          .sharpen()             // Add sharpening
+          .jpeg({ quality: 95 }) // High quality output
+          .toBuffer();
+          
+        const enhancedBase64 = enhancedBuffer.toString('base64');
+        restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
+        console.log('✅ Basic enhancement completed!');
+      }
+      
+    } catch (error) {
+      console.error('❌ Photo restoration error:', error);
+      // Keep original as fallback
+    }
 
     const restoration = {
       id: id,
