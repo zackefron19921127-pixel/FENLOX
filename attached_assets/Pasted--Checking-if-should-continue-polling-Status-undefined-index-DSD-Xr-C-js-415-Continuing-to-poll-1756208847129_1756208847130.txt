@@ -1,0 +1,58 @@
+⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🚀 Starting photo upload: images.jpg 10055 image/jpeg
+index-DSD_Xr_C.js:415 📤 Sending upload request to /api/photos/restore
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 📨 Upload response status: 201
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 ✅ Upload successful, restoration ID: usrmeshe802je2k3s
+index-DSD_Xr_C.js:415 📊 Restoration data: Object
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: undefined
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: false
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 🔄 Polling restoration status for ID: usrmeshe802je2k3s
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: undefined
+index-DSD_Xr_C.js:415 🔄 Continuing to poll...
+index-DSD_Xr_C.js:415 📨 Polling response status: 200
+index-DSD_Xr_C.js:415 📊 Polling data received: Object
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: completed
+index-DSD_Xr_C.js:415 ✅ Stopping polling - restoration complete
+index-DSD_Xr_C.js:415 🎯 Upload zone check - restoration data: Object
+index-DSD_Xr_C.js:415 🎯 Upload zone check - isCompleted: data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjOGI1Y2Y2Ii8+PHRleHQgeD0iNTAlIiB5PSI0MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5BSSBSZXN0b3JlZDwvdGV4dD48dGV4dCB4PSI1MCUiIHk9IjYwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgUGhvdG88L3RleHQ+PC9zdmc+
+index-DSD_Xr_C.js:415 ⏰ Checking if should continue polling. Status: completed
+index-DSD_Xr_C.js:415 ✅ Stopping polling - restoration complete
