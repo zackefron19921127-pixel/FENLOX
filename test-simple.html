@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial; }
+        .header { position: fixed; top: 0; left: 0; right: 0; background: white; border-bottom: 1px solid #ccc; padding: 10px; z-index: 1000; }
+        .content { padding-top: 80px; height: 2000px; }
+        button { padding: 10px 20px; margin: 5px; background: blue; color: white; border: none; cursor: pointer; }
+        button:hover { background: darkblue; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button onclick="alert('Works!')">Test Button</button>
+        <button onclick="window.scrollTo(0, 500)">Scroll Test</button>
+    </div>
+    <div class="content">
+        <h1>Test Content</h1>
+        <p>This is test content to check scrolling...</p>
+        <div style="margin-top: 500px;">
+            <h2>Middle Section</h2>
+            <p>More content here...</p>
+        </div>
+        <div style="margin-top: 500px;">
+            <h2>Bottom Section</h2>
+            <p>Final content here...</p>
+        </div>
+    </div>
+</body>
+</html>

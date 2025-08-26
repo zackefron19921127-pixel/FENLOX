@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://fenlox.com/sitemap.xml
+
+# Disallow admin or api paths
+Disallow: /api/
+Disallow: /uploads/

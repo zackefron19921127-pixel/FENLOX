@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoRevive AI - Restore Your Old Photos with AI | Photo Enhancement Service</title>
+    <meta name="description" content="Transform your old, damaged, or black and white photos with AI. PhotoRevive AI provides instant photo restoration, colorization, and enhancement. Upload your memories and bring them back to life.">
+    <meta name="keywords" content="photo restoration, AI photo enhancement, old photo repair, colorization, image restoration, vintage photos, family memories, photo editing">
+    <meta name="author" content="PhotoRevive AI">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://photorevive-ai.com/">
+    <meta property="og:title" content="PhotoRevive AI - Restore Your Old Photos with AI">
+    <meta property="og:description" content="Transform your old, damaged, or black and white photos with AI. Instant photo restoration and colorization.">
+    <meta property="og:image" content="https://photorevive-ai.com/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://photorevive-ai.com/">
+    <meta property="twitter:title" content="PhotoRevive AI - Restore Your Old Photos with AI">
+    <meta property="twitter:description" content="Transform your old, damaged, or black and white photos with AI. Instant photo restoration and colorization.">
+    <meta property="twitter:image" content="https://photorevive-ai.com/og-image.jpg">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "PhotoRevive AI",
+      "description": "AI-powered photo restoration service for old, damaged, and black and white photos",
+      "url": "https://photorevive-ai.com",
+      "applicationCategory": "PhotoEditingApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free photo restoration with watermark"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "PhotoRevive AI",
+        "url": "https://photorevive-ai.com"
+      }
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'sans': ['Inter', 'system-ui', 'sans-serif'],
+                },
+                colors: {
+                    'primary': {
+                        50: '#eff6ff',
+                        500: '#3b82f6',
+                        600: '#2563eb',
+                    },
+                    'purple': {
+                        500: '#8b5cf6',
+                        600: '#7c3aed',
+                    }
+                },
+                backgroundImage: {
+                    'gradient-primary': 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                    'gradient-soft': 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-white font-sans">
+    <!-- @COMPONENT: Header [navigation and logo] -->
+    <header class="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-magic text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">PhotoRevive AI</span>
+                </div>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
+                    <a href="#features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+                    <a href="#about" class="text-gray-600 hover:text-blue-600 transition-colors">About</a>
+                    <a href="#contact" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
+                </nav>
+                <button class="md:hidden p-2">
+                    <i class="fas fa-bars text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: Hero Section [main value proposition and upload area] -->
+    <section id="home" class="pt-24 pb-20 min-h-screen flex items-center">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                    <span class="bg-gradient-primary bg-clip-text text-transparent">Bring Your Old Photos</span><br>
+                    <span class="text-gray-900">Back to Life</span>
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+                    Transform damaged, faded, or black & white photos with AI-powered restoration. 
+                    Remove scratches, add color, and enhance details in seconds.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 mb-12">
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>Instant Results</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>AI Colorization</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>Scratch Removal</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>Face Enhancement</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- @COMPONENT: Upload Zone [drag and drop file upload] -->
+            <div class="max-w-2xl mx-auto">
+                <div id="upload-zone" class="relative bg-gradient-soft backdrop-blur-sm border-2 border-dashed border-blue-300 rounded-3xl p-12 text-center transition-all duration-300 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer">
+                    <div id="upload-content">
+                        <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-cloud-upload-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Upload Your Photo</h3>
+                        <p class="text-gray-600 mb-6">Drag and drop your photo here or click to browse</p>
+                        <p class="text-sm text-gray-500">Supports JPG, PNG up to 10MB</p>
+                        <input type="file" id="photo-input" class="hidden" accept="image/jpeg,image/jpg,image/png" data-mock="true">
+                    </div>
+                    
+                    <!-- Upload Progress (hidden by default) -->
+                    <div id="upload-progress" class="hidden">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Processing Your Photo...</h3>
+                        <p class="text-gray-600 text-sm">AI is analyzing and restoring your image</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                            <div class="bg-gradient-primary h-2 rounded-full transition-all duration-300" style="width: 0%" id="progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Upload Zone -->
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Hero Section -->
+
+    <!-- @COMPONENT: Results Section [before/after comparison] -->
+    <section id="results" class="py-20 bg-gray-50 hidden">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Your Photo Restored</h2>
+                <p class="text-xl text-gray-600">See the amazing transformation powered by AI</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <!-- @COMPONENT: BeforeAfterSlider [interactive comparison] -->
+                <div class="bg-white rounded-3xl shadow-2xl p-8 backdrop-blur-sm border border-gray-100">
+                    <div class="relative overflow-hidden rounded-2xl bg-gray-100" style="aspect-ratio: 4/3;">
+                        <!-- Original Image -->
+                        <!-- A vintage black and white family portrait from the 1940s showing wear and scratches -->
+                        <img id="original-image" src="https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" alt="Original damaged photo" class="absolute inset-0 w-full h-full object-cover" data-mock-image="true">
+                        
+                        <!-- Restored Image -->
+                        <div id="restored-container" class="absolute inset-0 overflow-hidden" style="width: 50%;">
+                            <!-- A beautifully restored and colorized version of the same family portrait -->
+                            <img id="restored-image" src="https://images.unsplash.com/photo-1511895426328-dc8714191300?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" alt="AI restored photo" class="w-full h-full object-cover" data-mock-image="true">
+                        </div>
+                        
+                        <!-- Slider Handle -->
+                        <div id="slider-handle" class="absolute top-0 bottom-0 w-1 bg-white shadow-lg cursor-ew-resize" style="left: 50%; transform: translateX(-50%);">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
+                                <i class="fas fa-arrows-alt-h text-gray-600 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Labels -->
+                    <div class="flex justify-between mt-4 text-sm font-medium text-gray-600">
+                        <span>Original</span>
+                        <span>AI Restored</span>
+                    </div>
+
+                    <!-- Enhancement Options -->
+                    <div class="mt-8 p-6 bg-gray-50 rounded-2xl">
+                        <h4 class="font-semibold text-gray-900 mb-4">Enhancement Applied:</h4>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm flex items-center">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Scratch Removal
+                            </span>
+                            <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center">
+                                <i class="fas fa-palette mr-2"></i>
+                                AI Colorization
+                            </span>
+                            <span class="px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm flex items-center">
+                                <i class="fas fa-eye mr-2"></i>
+                                Face Enhancement
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Download Section -->
+                    <div class="mt-8 text-center">
+                        <button id="download-btn" class="bg-gradient-primary text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Restored Photo
+                        </button>
+                        <p class="text-sm text-gray-500 mt-3">High-quality download • No watermark</p>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: BeforeAfterSlider -->
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Results Section -->
+
+    <!-- @COMPONENT: Features Section [service capabilities] -->
+    <section id="features" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Powerful AI Restoration</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Our advanced AI technology can transform any old, damaged, or faded photograph into a stunning, high-quality image
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Feature 1 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                    <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-magic text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">AI Colorization</h3>
+                    <p class="text-gray-600">Transform black & white photos into vibrant color images with historically accurate colorization powered by advanced AI models.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                    <div class="w-14 h-14 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-tools text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Damage Repair</h3>
+                    <p class="text-gray-600">Remove scratches, tears, spots, and other damage from your precious memories. Our AI intelligently fills in missing details.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                    <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-user text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Face Enhancement</h3>
+                    <p class="text-gray-600">Sharpen facial features and enhance details to bring clarity to the people in your cherished photographs.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                    <div class="w-14 h-14 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-search-plus text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">HD Upscaling</h3>
+                    <p class="text-gray-600">Increase resolution up to 4K quality while preserving image details. Perfect for printing or digital display.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                    <div class="w-14 h-14 bg-gradient-to-r from-teal-500 to-green-500 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-bolt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Instant Processing</h3>
+                    <p class="text-gray-600">Get your restored photos in seconds, not hours. Our optimized AI pipeline delivers fast, professional results.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                    <div class="w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Privacy Secure</h3>
+                    <p class="text-gray-600">Your photos are processed securely and automatically deleted after download. We prioritize your privacy and security.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Features Section -->
+
+    <!-- @COMPONENT: Gallery Section [showcase examples] -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Restoration Examples</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    See the incredible transformations our AI has achieved for thousands of satisfied customers
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Example 1 -->
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+                    <!-- A vintage damaged black and white wedding photo from the 1950s -->
+                    <img src="https://pixabay.com/get/g23d047569cf318b2b0a3eca61a311063f4bdf7ce002687f34043f69935925b251005f58c8f1b9b6babdf1d1b43b21ef2e915276c885ff11881086f75c426ecdb_1280.jpg" alt="Before restoration - vintage wedding photo" class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <h4 class="font-semibold text-gray-900 mb-2">Wedding Memory Restored</h4>
+                        <p class="text-gray-600 text-sm">1950s wedding photo with tears and fading completely restored and colorized</p>
+                    </div>
+                </div>
+
+                <!-- Example 2 -->
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+                    <!-- A faded old family portrait with multiple generations -->
+                    <img src="https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Before restoration - family portrait" class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <h4 class="font-semibold text-gray-900 mb-2">Family Heritage</h4>
+                        <p class="text-gray-600 text-sm">Multi-generational family portrait enhanced with AI face restoration</p>
+                    </div>
+                </div>
+
+                <!-- Example 3 -->
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+                    <!-- A severely damaged old photograph with scratches and wear -->
+                    <img src="https://images.unsplash.com/photo-1515041219749-89347f83291a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Before restoration - damaged vintage photo" class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <h4 class="font-semibold text-gray-900 mb-2">Childhood Memories</h4>
+                        <p class="text-gray-600 text-sm">Heavily damaged childhood photo completely restored with scratch removal</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button class="bg-gradient-primary text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    See More Examples
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Gallery Section -->
+
+    <!-- @COMPONENT: About Section [company information] -->
+    <section id="about" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">About PhotoRevive AI</h2>
+                    <p class="text-xl text-gray-600">
+                        Preserving memories through cutting-edge artificial intelligence
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                    <div>
+                        <!-- A team of AI researchers working on photo restoration technology -->
+                        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" alt="AI research team working on photo restoration" class="rounded-3xl shadow-xl w-full h-auto" data-mock-image="true">
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-gray-900 mb-6">Our Mission</h3>
+                        <p class="text-gray-600 text-lg mb-6">
+                            PhotoRevive AI was founded with a simple mission: to help people preserve and restore their most precious memories using the power of artificial intelligence.
+                        </p>
+                        <p class="text-gray-600 text-lg mb-6">
+                            Our team of AI researchers and computer vision experts have developed state-of-the-art algorithms that can intelligently restore damaged photos, colorize black and white images, and enhance facial details with unprecedented accuracy.
+                        </p>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600" data-bind="stats.photosRestored">50,000+</div>
+                                <div class="text-sm text-gray-600">Photos Restored</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-purple-600" data-bind="stats.happyCustomers">12,000+</div>
+                                <div class="text-sm text-gray-600">Happy Customers</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-green-600" data-bind="stats.satisfaction">99%</div>
+                                <div class="text-sm text-gray-600">Satisfaction Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-soft rounded-3xl p-8 md:p-12">
+                    <div class="text-center mb-8">
+                        <h3 class="text-3xl font-bold text-gray-900 mb-4">Why Choose PhotoRevive AI?</h3>
+                        <p class="text-gray-600 text-lg">We combine cutting-edge technology with a passion for preserving memories</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-brain text-blue-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Advanced AI</h4>
+                            <p class="text-gray-600 text-sm">State-of-the-art neural networks trained on millions of photos</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-clock text-purple-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Lightning Fast</h4>
+                            <p class="text-gray-600 text-sm">Get your restored photos in seconds, not hours or days</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-heart text-green-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Made with Love</h4>
+                            <p class="text-gray-600 text-sm">Every algorithm is crafted with care for your precious memories</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: About Section -->
+
+    <!-- @COMPONENT: Contact Section [contact information and form] -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Get in Touch</h2>
+                    <p class="text-xl text-gray-600">
+                        Have questions about photo restoration? We're here to help!
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12">
+                    <!-- Contact Information -->
+                    <div>
+                        <div class="bg-white rounded-3xl p-8 shadow-lg">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-6">Contact Information</h3>
+                            
+                            <div class="space-y-6">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-envelope text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Email Support</h4>
+                                        <p class="text-gray-600">support@photorevive-ai.com</p>
+                                        <p class="text-sm text-gray-500">Response within 2 hours</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-comments text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Live Chat</h4>
+                                        <p class="text-gray-600">Available 24/7 for instant help</p>
+                                        <p class="text-sm text-gray-500">Click the chat bubble</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-question-circle text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">FAQ Center</h4>
+                                        <p class="text-gray-600">Find answers to common questions</p>
+                                        <a href="#" class="text-sm text-blue-600 hover:underline">Visit FAQ →</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 pt-8 border-t border-gray-200">
+                                <h4 class="font-semibold text-gray-900 mb-4">Follow Us</h4>
+                                <div class="flex space-x-4">
+                                    <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 bg-sky-400 rounded-lg flex items-center justify-center text-white hover:bg-sky-500 transition-colors">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg flex items-center justify-center text-white hover:from-purple-500 hover:to-pink-500 transition-all">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center text-white hover:bg-blue-800 transition-colors">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div>
+                        <div class="bg-white rounded-3xl p-8 shadow-lg">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-6">Send Us a Message</h3>
+                            
+                            <form id="contact-form" class="space-y-6" data-mock="true">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Your name" data-mock="true">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                    <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="your@email.com" data-mock="true">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                                    <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" data-mock="true">
+                                        <option>General Inquiry</option>
+                                        <option>Technical Support</option>
+                                        <option>Billing Question</option>
+                                        <option>Feature Request</option>
+                                        <option>Partnership</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                    <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none" placeholder="Tell us how we can help..." data-mock="true"></textarea>
+                                </div>
+
+                                <button type="submit" class="w-full bg-gradient-primary text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5" data-event="click:handleContactSubmit">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Send Message
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Contact Section -->
+
+    <!-- @COMPONENT: Footer [site footer with links] -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <!-- Logo and Description -->
+                <div class="md:col-span-1">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                            <i class="fas fa-magic text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold">PhotoRevive AI</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Bringing your old photos back to life with cutting-edge AI technology. Preserve your memories for generations to come.
+                    </p>
+                    <div class="flex space-x-3">
+                        <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+                            <i class="fab fa-facebook-f text-sm"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+                            <i class="fab fa-twitter text-sm"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+                            <i class="fab fa-instagram text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product Links -->
+                <div>
+                    <h4 class="font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Photo Restoration</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">AI Colorization</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Face Enhancement</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">HD Upscaling</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Batch Processing</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company Links -->
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#about" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#contact" class="hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Press Kit</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support Links -->
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">API Docs</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm">
+                        © 2024 PhotoRevive AI. All rights reserved.
+                    </p>
+                    <div class="flex items-center space-x-6 mt-4 md:mt-0">
+                        <span class="text-gray-400 text-sm">Made with ❤️ for preserving memories</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <!-- @COMPONENT: FloatingActionButtons [chat and back to top] -->
+    <div class="fixed bottom-6 right-6 flex flex-col space-y-4 z-40">
+        <!-- Chat Button -->
+        <button id="chat-btn" class="w-14 h-14 bg-gradient-primary rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all duration-300 transform hover:scale-110">
+            <i class="fas fa-comments text-xl"></i>
+        </button>
+        
+        <!-- Back to Top Button -->
+        <button id="back-to-top" class="w-14 h-14 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 pointer-events-none">
+            <i class="fas fa-arrow-up text-xl"></i>
+        </button>
+    </div>
+    <!-- @END_COMPONENT: FloatingActionButtons -->
+
+    <script>
+        // TODO: Implement business logic, API calls, or state management
+        (function() {
+            // Upload zone interactivity
+            const uploadZone = document.getElementById('upload-zone');
+            const photoInput = document.getElementById('photo-input');
+            const uploadContent = document.getElementById('upload-content');
+            const uploadProgress = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            const resultsSection = document.getElementById('results');
+
+            // Drag and drop handlers
+            uploadZone.addEventListener('click', () => photoInput.click());
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('border-blue-400', 'bg-blue-50');
+            });
+            uploadZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('border-blue-400', 'bg-blue-50');
+            });
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('border-blue-400', 'bg-blue-50');
+                // TODO: Handle file drop
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+
+            photoInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+
+            function handleFileUpload(file) {
+                // TODO: Validate file type and size
+                // TODO: Show upload progress
+                uploadContent.classList.add('hidden');
+                uploadProgress.classList.remove('hidden');
+                
+                // Simulate upload progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 30;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            // TODO: Process with Facewow API
+                            showResults();
+                        }, 1000);
+                    }
+                    progressBar.style.width = progress + '%';
+                }, 200);
+            }
+
+            function showResults() {
+                resultsSection.classList.remove('hidden');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Before/After slider functionality
+            const sliderHandle = document.getElementById('slider-handle');
+            const restoredContainer = document.getElementById('restored-container');
+            let isDragging = false;
+
+            if (sliderHandle) {
+                sliderHandle.addEventListener('mousedown', () => isDragging = true);
+                document.addEventListener('mouseup', () => isDragging = false);
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const rect = sliderHandle.parentElement.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                    
+                    sliderHandle.style.left = percentage + '%';
+                    restoredContainer.style.width = percentage + '%';
+                });
+            }
+
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = document.querySelector(link.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // Back to top button
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 500) {
+                    backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                } else {
+                    backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Chat button
+            document.getElementById('chat-btn').addEventListener('click', () => {
+                // TODO: Open chat widget or support system
+                alert('Chat feature coming soon!');
+            });
+
+            // Contact form submission
+            document.getElementById('contact-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                // TODO: Handle form submission
+                alert('Thank you for your message! We will get back to you soon.');
+            });
+
+            // Download button
+            document.getElementById('download-btn').addEventListener('click', () => {
+                // TODO: Trigger download of restored photo
+                alert('Download feature will be implemented with real restoration API');
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "PhotoRevive AI",
+  "short_name": "PhotoRevive",
+  "description": "Restore old photos with AI technology",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6F3BFD",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

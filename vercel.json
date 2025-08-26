@@ -1,0 +1,38 @@
+{
+  "builds": [
+    {
+      "src": "server/index.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/**/*",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "client/dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "NERO_AI_API_KEY": "4CI5GNA0UD2UWFDZK5MPCUQ1"
+  },
+  "functions": {
+    "server/index.ts": {
+      "maxDuration": 60
+    }
+  }
+}
