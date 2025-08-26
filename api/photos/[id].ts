@@ -41,12 +41,12 @@ export default function handler(req: any, res: any) {
     id: id,
     originalImageUrl: isUserUpload 
       ? `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTJlOGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzQ3NTU2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPllvdXIgVXBsb2FkZWQgUGhvdG88L3RleHQ+PC9zdmc+`
-      : '/assets/generated_images/Damaged_vintage_family_portrait_a59455d2.png',
+      : '/assets/generated_images/Damaged_vintage_family_photo_09147ed5.png',
     options: {},
     status: 'completed',
     restoredImageUrl: isUserUpload
       ? `data:image/svg+xml;base64,${btoa(`<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="${selectedColor}"/><text x="50%" y="40%" font-family="Arial" font-size="20" fill="white" text-anchor="middle" dy=".3em">AI Restored</text><text x="50%" y="60%" font-family="Arial" font-size="16" fill="white" text-anchor="middle" dy=".3em">Your Photo</text></svg>`)}`
-      : '/assets/generated_images/Restored_matching_family_portrait_0f1b3ea6.png',
+      : '/assets/generated_images/Perfectly_restored_family_photo_6e2af80a.png',
     createdAt: new Date(Date.now() - 30000).toISOString(),
     completedAt: new Date().toISOString()
   };
