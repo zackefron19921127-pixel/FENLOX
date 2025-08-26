@@ -91,9 +91,10 @@ export default function UploadZone() {
   
   if (isCompleted) {
     console.log("🎨 Rendering results component with data:", {
-      originalImage: restorationData.originalImageUrl,
-      restoredImage: restorationData.restoredImageUrl,
-      options: restorationData.options
+      originalImage: restorationData.originalImageUrl?.substring(0, 100) + "...",
+      restoredImage: restorationData.restoredImageUrl?.substring(0, 100) + "...",
+      options: restorationData.options,
+      fullData: restorationData
     });
     
     // Scroll to results after a short delay to ensure rendering
