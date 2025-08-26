@@ -71,10 +71,14 @@ const initializeApp = async () => {
 };
 
 (async () => {
-  // Always register API routes first
-  const server = await registerRoutes(app);
+  // Create server first
+  const { createServer } = await import("http");
+  const server = createServer(app);
   
-  // Then add Vite middleware (which includes catch-all)
+  // Register API routes with highest priority
+  await registerRoutes(app);
+  
+  // Then add Vite middleware for non-API routes only
   if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   }

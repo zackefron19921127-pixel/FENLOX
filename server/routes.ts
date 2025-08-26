@@ -101,7 +101,7 @@ async function processWithAI(imagePath: string, options: any): Promise<string> {
   }
 }
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<void> {
   // Ensure uploads directory exists (with error handling for serverless)
   try {
     if (!fs.existsSync("uploads")) {
@@ -308,7 +308,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(sitemap);
   });
 
-  // Only create server if we don't already have one
-  const httpServer = createServer(app);
-  return httpServer;
+  // Routes registered successfully
 }
