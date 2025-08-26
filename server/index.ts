@@ -70,11 +70,11 @@ const initializeApp = async () => {
   return server;
 };
 
-// Force production-like setup to avoid Vite middleware conflicts
 (async () => {
+  // Always register API routes first
   const server = await registerRoutes(app);
   
-  // Only add Vite in actual development
+  // Then add Vite middleware (which includes catch-all)
   if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   }
