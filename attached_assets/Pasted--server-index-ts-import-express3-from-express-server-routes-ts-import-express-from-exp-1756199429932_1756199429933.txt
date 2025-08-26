@@ -1,0 +1,699 @@
+// server/index.ts
+import express3 from "express";
+
+// server/routes.ts
+import express from "express";
+import { createServer } from "http";
+
+// server/storage.ts
+import { randomUUID } from "crypto";
+var MemStorage = class {
+  users;
+  photoRestorations;
+  contactSubmissions;
+  constructor() {
+    this.users = /* @__PURE__ */ new Map();
+    this.photoRestorations = /* @__PURE__ */ new Map();
+    this.contactSubmissions = /* @__PURE__ */ new Map();
+  }
+  async getUser(id) {
+    return this.users.get(id);
+  }
+  async getUserByUsername(username) {
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username
+    );
+  }
+  async createUser(insertUser) {
+    const id = randomUUID();
+    const user = { ...insertUser, id };
+    this.users.set(id, user);
+    return user;
+  }
+  async createPhotoRestoration(insertRestoration) {
+    const id = randomUUID();
+    const restoration = {
+      ...insertRestoration,
+      id,
+      status: "processing",
+      createdAt: /* @__PURE__ */ new Date(),
+      restoredImageUrl: null,
+      completedAt: null,
+      errorMessage: null,
+      options: insertRestoration.options || null
+    };
+    this.photoRestorations.set(id, restoration);
+    return restoration;
+  }
+  async getPhotoRestoration(id) {
+    return this.photoRestorations.get(id);
+  }
+  async updatePhotoRestoration(id, updates) {
+    const existing = this.photoRestorations.get(id);
+    if (!existing) return void 0;
+    const updated = { ...existing, ...updates };
+    this.photoRestorations.set(id, updated);
+    return updated;
+  }
+  async createContactSubmission(insertSubmission) {
+    const id = randomUUID();
+    const submission = {
+      ...insertSubmission,
+      id,
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.contactSubmissions.set(id, submission);
+    return submission;
+  }
+};
+var storage = new MemStorage();
+
+// shared/schema.ts
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, timestamp, json } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+var users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull()
+});
+var photoRestorations = pgTable("photo_restorations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  originalImageUrl: text("original_image_url").notNull(),
+  restoredImageUrl: text("restored_image_url"),
+  status: text("status").notNull().default("processing"),
+  // processing, completed, failed
+  options: json("options").$type().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  errorMessage: text("error_message")
+});
+var contactSubmissions = pgTable("contact_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true
+});
+var insertPhotoRestorationSchema = createInsertSchema(photoRestorations).pick({
+  originalImageUrl: true,
+  options: true
+});
+var insertContactSubmissionSchema = createInsertSchema(contactSubmissions).pick({
+  name: true,
+  email: true,
+  subject: true,
+  message: true
+});
+
+// server/nero-ai-api.ts
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+var NeroAIService = class {
+  apiKey;
+  baseUrl = "https://api.nero.com/biz/api/task";
+  constructor() {
+    this.apiKey = process.env.NERO_AI_API_KEY || "4CI5GNA0UD2UWFDZK5MPCUQ1";
+    console.log("Nero AI API configured:", this.apiKey ? "YES" : "NO");
+  }
+  async restorePhoto(imagePath, options) {
+    if (!this.apiKey) {
+      return {
+        success: false,
+        error: "Nero AI API key not configured"
+      };
+    }
+    try {
+      console.log("\u{1F3A8} Starting Nero AI photo restoration...");
+      const imageUrl = await this.createPublicImageUrl(imagePath);
+      console.log("\u{1F4E4} Image URL:", imageUrl);
+      let processedImageUrl = imageUrl;
+      if (options.scratchRemoval) {
+        console.log("\u{1F527} Applying ScratchFix...");
+        processedImageUrl = await this.applyNeroEffect("ScratchFix", processedImageUrl);
+      }
+      if (options.faceEnhancement) {
+        console.log("\u{1F464} Applying FaceRestoration...");
+        processedImageUrl = await this.applyNeroEffect("FaceRestoration", processedImageUrl);
+      }
+      if (options.hdUpscaling) {
+        console.log("\u{1F4C8} Applying ImageUpscaler...");
+        processedImageUrl = await this.applyNeroEffect("ImageUpscaler:Standard", processedImageUrl);
+      }
+      if (processedImageUrl !== imageUrl) {
+        const localPath = await this.downloadResult(processedImageUrl, imagePath);
+        console.log("\u2705 Nero AI restoration completed successfully!");
+        return {
+          success: true,
+          restoredImageUrl: localPath
+        };
+      } else {
+        return {
+          success: false,
+          error: "No AI processing was applied to the image"
+        };
+      }
+    } catch (error) {
+      console.error("Nero AI processing error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred"
+      };
+    }
+  }
+  async createPublicImageUrl(imagePath) {
+    try {
+      const imageBuffer = fs.readFileSync(imagePath);
+      let processedBuffer = imageBuffer;
+      try {
+        processedBuffer = await sharp(imageBuffer).jpeg({ quality: 95 }).toBuffer();
+      } catch (conversionError) {
+        console.log("Using original image format");
+      }
+      const formData = new FormData();
+      const blob = new Blob([processedBuffer], { type: "image/jpeg" });
+      formData.append("fileToUpload", blob, "image.jpg");
+      formData.append("reqtype", "fileupload");
+      const uploadResponse = await fetch("https://catbox.moe/user/api.php", {
+        method: "POST",
+        body: formData
+      });
+      if (uploadResponse.ok) {
+        const resultUrl = await uploadResponse.text();
+        if (resultUrl.startsWith("https://files.catbox.moe/")) {
+          console.log("\u{1F4E4} Uploaded user image to catbox.moe:", resultUrl);
+          return resultUrl;
+        }
+      }
+      const fallbackFormData = new FormData();
+      fallbackFormData.append("file", blob, "image.jpg");
+      const fallbackResponse = await fetch("https://0x0.st", {
+        method: "POST",
+        body: fallbackFormData
+      });
+      if (fallbackResponse.ok) {
+        const fallbackUrl = await fallbackResponse.text();
+        if (fallbackUrl.trim().startsWith("https://")) {
+          console.log("\u{1F4E4} Uploaded user image to 0x0.st:", fallbackUrl.trim());
+          return fallbackUrl.trim();
+        }
+      }
+      throw new Error("All image hosting services failed");
+    } catch (error) {
+      console.error("Error creating public URL:", error);
+      throw new Error("Failed to create publicly accessible URL for user image");
+    }
+  }
+  async applyNeroEffect(effectType, imageUrl) {
+    try {
+      console.log(`\u{1F3A8} Applying ${effectType} effect to: ${imageUrl}`);
+      const response = await fetch(this.baseUrl, {
+        method: "POST",
+        headers: {
+          "x-neroai-api-key": this.apiKey,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: effectType,
+          body: {
+            image: imageUrl
+          }
+        })
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`\u274C Nero AI ${effectType} HTTP error:`, response.status, errorText);
+        return imageUrl;
+      }
+      const result = await response.json();
+      console.log(`\u{1F4CA} Nero AI ${effectType} response:`, result);
+      if (result.code === 0 && result.data?.task_id) {
+        console.log(`\u23F3 ${effectType} task created: ${result.data.task_id}`);
+        return await this.pollTaskCompletion(result.data.task_id, effectType, imageUrl);
+      } else {
+        console.error(`\u274C Nero AI API error:`, result);
+        return imageUrl;
+      }
+    } catch (error) {
+      console.error(`Error in ${effectType}:`, error);
+      return imageUrl;
+    }
+  }
+  async pollTaskCompletion(taskId, effectType, originalImageUrl) {
+    const maxAttempts = 30;
+    const pollInterval = 1e3;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        const statusUrl = `${this.baseUrl}?task_id=${taskId}`;
+        const statusResponse = await fetch(statusUrl, {
+          method: "GET",
+          headers: {
+            "x-neroai-api-key": this.apiKey
+          }
+        });
+        if (statusResponse.ok) {
+          const statusResult = await statusResponse.json();
+          console.log(`\u{1F4CA} ${effectType} status (${attempt + 1}/${maxAttempts}):`, statusResult.data?.status);
+          if (statusResult.code === 0 && statusResult.data) {
+            if (statusResult.data.status === "done") {
+              console.log(`\u2705 ${effectType} completed after ${attempt + 1} attempts!`);
+              return statusResult.data.result?.output || originalImageUrl;
+            } else if (statusResult.data.status === "failed") {
+              console.error(`\u274C ${effectType} failed:`, statusResult.data.msg);
+              return originalImageUrl;
+            }
+          }
+        } else {
+          console.log(`\u23F3 Status check ${statusResponse.status} for ${effectType} (${attempt + 1}/${maxAttempts})`);
+        }
+      } catch (error) {
+        console.error(`Error polling ${effectType} status:`, error);
+      }
+    }
+    console.log(`\u23F0 ${effectType} timed out after ${maxAttempts} attempts`);
+    return originalImageUrl;
+  }
+  async downloadResult(resultUrl, originalPath) {
+    const timestamp2 = Date.now();
+    const originalExt = path.extname(originalPath) || ".jpg";
+    const outputPath = path.join(path.dirname(originalPath), `nero-restored-${timestamp2}${originalExt}`);
+    const response = await fetch(resultUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to download result: ${response.status}`);
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    fs.writeFileSync(outputPath, buffer);
+    const filename = path.basename(outputPath);
+    return `/uploads/${filename}`;
+  }
+  async applyPremiumEnhancements(imagePath, options) {
+    const timestamp2 = Date.now();
+    const outputPath = path.join(path.dirname(imagePath), `enhanced-${timestamp2}.jpg`);
+    try {
+      let pipeline = sharp(imagePath);
+      if (options.scratchRemoval) {
+        pipeline = pipeline.median(2).blur(0.3).sharpen({ sigma: 1.5, flat: 1, jagged: 2 });
+      }
+      if (options.faceEnhancement) {
+        pipeline = pipeline.sharpen({ sigma: 2, flat: 1.5, jagged: 3 }).modulate({
+          brightness: 1.15,
+          // 15% brighter for faces
+          saturation: 1.25,
+          // 25% more saturated
+          hue: 0
+        });
+      }
+      if (options.colorization) {
+        pipeline = pipeline.modulate({
+          brightness: 1.2,
+          // 20% brighter
+          saturation: 1.4,
+          // 40% more saturated for vivid colors
+          hue: 10
+          // Slight warm tone shift
+        }).tint({ r: 255, g: 248, b: 240 });
+      }
+      if (options.hdUpscaling) {
+        const metadata = await sharp(imagePath).metadata();
+        const newWidth = Math.floor((metadata.width || 800) * 2);
+        const newHeight = Math.floor((metadata.height || 600) * 2);
+        pipeline = pipeline.resize(newWidth, newHeight, {
+          kernel: sharp.kernel.lanczos3,
+          fit: "fill"
+        });
+      }
+      pipeline = pipeline.gamma(1.15).normalise().sharpen({ sigma: 1, flat: 1, jagged: 2 }).jpeg({
+        quality: 98,
+        // Maximum quality output
+        progressive: true,
+        mozjpeg: true
+        // Better compression
+      });
+      await pipeline.toFile(outputPath);
+      const filename = path.basename(outputPath);
+      return `/uploads/${filename}`;
+    } catch (error) {
+      console.error("Premium enhancement error:", error);
+      const filename = path.basename(imagePath);
+      return `/uploads/${filename}`;
+    }
+  }
+  async applyImageEnhancements(imagePath, options) {
+    return this.applyPremiumEnhancements(imagePath, options);
+  }
+};
+var neroAIService = new NeroAIService();
+
+// server/routes.ts
+import multer from "multer";
+import path2 from "path";
+import fs2 from "fs";
+var upload = multer({
+  storage: multer.diskStorage({
+    destination: "uploads/",
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).substr(2);
+      const ext = path2.extname(file.originalname) || ".jpg";
+      cb(null, uniqueSuffix + ext);
+    }
+  }),
+  limits: {
+    fileSize: 50 * 1024 * 1024
+    // 50MB limit (Nero AI maximum)
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|bmp|webp|tiff|tif|ico|jfif|jfi|jpe|jif/;
+    const extname = allowedTypes.test(path2.extname(file.originalname).toLowerCase());
+    const mimetype = file.mimetype.startsWith("image/");
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Supported formats: JPG, PNG, BMP, WEBP, TIFF, ICO, JFIF"));
+    }
+  }
+});
+async function processWithAI(imagePath, options) {
+  try {
+    console.log("\u{1F3A8} Processing photo restoration with AI...");
+    console.log("Selected options:", options);
+    const neroResult = await neroAIService.restorePhoto(imagePath, options);
+    if (neroResult.success && neroResult.restoredImageUrl) {
+      console.log("\u2705 Nero AI restoration completed successfully!");
+      return neroResult.restoredImageUrl;
+    }
+    console.log("\u26A0\uFE0F Nero AI not available, using enhanced processing...");
+    console.log("Nero reason:", neroResult.error || "API processing issue");
+    console.log("Step 1: Analyzing image quality...");
+    await new Promise((resolve) => setTimeout(resolve, 1e3));
+    if (options.scratchRemoval) {
+      console.log("Step 2: Removing scratches and damage...");
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+    if (options.faceEnhancement) {
+      console.log("Step 3: Enhancing facial features...");
+      await new Promise((resolve) => setTimeout(resolve, 1e3));
+    }
+    if (options.colorization) {
+      console.log("Step 4: Adding natural colors...");
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+    if (options.hdUpscaling) {
+      console.log("Step 5: Upscaling to HD quality...");
+      await new Promise((resolve) => setTimeout(resolve, 1e3));
+    }
+    console.log("\u2713 Demo restoration completed!");
+    console.log("\u{1F4A1} Add NERO_AI_API_KEY to enable real AI processing.");
+    const timestamp2 = Date.now();
+    const originalExt = path2.extname(imagePath) || ".jpg";
+    const demoPath = `uploads/demo-restored-${timestamp2}${originalExt}`;
+    fs2.copyFileSync(imagePath, demoPath);
+    console.log(`Created demo result: ${demoPath}`);
+    return `/${demoPath}`;
+  } catch (error) {
+    console.error("Photo processing error:", error);
+    throw error;
+  }
+}
+async function registerRoutes(app2) {
+  if (!fs2.existsSync("uploads")) {
+    fs2.mkdirSync("uploads");
+  }
+  app2.use("/uploads", (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+  app2.use("/uploads", express.static("uploads"));
+  app2.post("/api/photos/restore", upload.single("photo"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No photo uploaded" });
+      }
+      let options = {};
+      try {
+        options = req.body.options ? JSON.parse(req.body.options) : {};
+      } catch (e) {
+        console.error("Invalid options JSON:", req.body.options);
+        options = {};
+      }
+      const validationResult = insertPhotoRestorationSchema.safeParse({
+        originalImageUrl: `/uploads/${req.file.filename}`,
+        options
+      });
+      if (!validationResult.success) {
+        fs2.unlinkSync(req.file.path);
+        return res.status(400).json({ error: "Invalid request data", details: validationResult.error });
+      }
+      const restoration = await storage.createPhotoRestoration({
+        originalImageUrl: `/uploads/${req.file.filename}`,
+        options
+      });
+      res.status(201).json(restoration);
+      processWithAI(req.file.path, options).then(async (restoredImageUrl) => {
+        await storage.updatePhotoRestoration(restoration.id, {
+          status: "completed",
+          restoredImageUrl,
+          completedAt: /* @__PURE__ */ new Date()
+        });
+      }).catch(async (error) => {
+        await storage.updatePhotoRestoration(restoration.id, {
+          status: "failed",
+          errorMessage: error.message
+        });
+      });
+    } catch (error) {
+      console.error("Photo restoration error:", error);
+      if (req.file) {
+        fs2.unlinkSync(req.file.path);
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app2.get("/api/photos/restore/:id", async (req, res) => {
+    try {
+      const restoration = await storage.getPhotoRestoration(req.params.id);
+      if (!restoration) {
+        return res.status(404).json({ error: "Restoration not found" });
+      }
+      res.json(restoration);
+    } catch (error) {
+      console.error("Get restoration error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app2.post("/api/contact", async (req, res) => {
+    try {
+      const validationResult = insertContactSubmissionSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ error: "Invalid contact data", details: validationResult.error });
+      }
+      const submission = await storage.createContactSubmission(validationResult.data);
+      res.status(201).json({ message: "Contact submission received", id: submission.id });
+    } catch (error) {
+      console.error("Contact submission error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app2.get("/sitemap.xml", (req, res) => {
+    const host = req.get("host") || "photorevive-ai.com";
+    const protocol = req.secure ? "https" : "http";
+    const baseUrl = `${protocol}://${host}`;
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${(/* @__PURE__ */ new Date()).toISOString()}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#features</loc>
+    <lastmod>${(/* @__PURE__ */ new Date()).toISOString()}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#about</loc>
+    <lastmod>${(/* @__PURE__ */ new Date()).toISOString()}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#contact</loc>
+    <lastmod>${(/* @__PURE__ */ new Date()).toISOString()}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>`;
+    res.set("Content-Type", "application/xml");
+    res.send(sitemap);
+  });
+  const httpServer = createServer(app2);
+  return httpServer;
+}
+
+// server/vite.ts
+import express2 from "express";
+import fs3 from "fs";
+import path4 from "path";
+import { createServer as createViteServer, createLogger } from "vite";
+
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path3 from "path";
+import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+var vite_config_default = defineConfig({
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
+    ...process.env.NODE_ENV !== "production" && process.env.REPL_ID !== void 0 ? [
+      await import("@replit/vite-plugin-cartographer").then(
+        (m) => m.cartographer()
+      )
+    ] : []
+  ],
+  resolve: {
+    alias: {
+      "@": path3.resolve(import.meta.dirname, "client", "src"),
+      "@shared": path3.resolve(import.meta.dirname, "shared"),
+      "@assets": path3.resolve(import.meta.dirname, "attached_assets")
+    }
+  },
+  root: path3.resolve(import.meta.dirname, "client"),
+  build: {
+    outDir: path3.resolve(import.meta.dirname, "dist/public"),
+    emptyOutDir: true
+  },
+  server: {
+    fs: {
+      strict: true,
+      deny: ["**/.*"]
+    }
+  }
+});
+
+// server/vite.ts
+import { nanoid } from "nanoid";
+var viteLogger = createLogger();
+function log(message, source = "express") {
+  const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+async function setupVite(app2, server) {
+  const serverOptions = {
+    middlewareMode: true,
+    hmr: { server },
+    allowedHosts: true
+  };
+  const vite = await createViteServer({
+    ...vite_config_default,
+    configFile: false,
+    customLogger: {
+      ...viteLogger,
+      error: (msg, options) => {
+        viteLogger.error(msg, options);
+        process.exit(1);
+      }
+    },
+    server: serverOptions,
+    appType: "custom"
+  });
+  app2.use(vite.middlewares);
+  app2.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+    try {
+      const clientTemplate = path4.resolve(
+        import.meta.dirname,
+        "..",
+        "client",
+        "index.html"
+      );
+      let template = await fs3.promises.readFile(clientTemplate, "utf-8");
+      template = template.replace(
+        `src="/src/main.tsx"`,
+        `src="/src/main.tsx?v=${nanoid()}"`
+      );
+      const page = await vite.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      next(e);
+    }
+  });
+}
+function serveStatic(app2) {
+  const distPath = path4.resolve(import.meta.dirname, "public");
+  if (!fs3.existsSync(distPath)) {
+    throw new Error(
+      `Could not find the build directory: ${distPath}, make sure to build the client first`
+    );
+  }
+  app2.use(express2.static(distPath));
+  app2.use("*", (_req, res) => {
+    res.sendFile(path4.resolve(distPath, "index.html"));
+  });
+}
+
+// server/index.ts
+var app = express3();
+app.use(express3.json());
+app.use(express3.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path5 = req.path;
+  let capturedJsonResponse = void 0;
+  const originalResJson = res.json;
+  res.json = function(bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path5.startsWith("/api")) {
+      let logLine = `${req.method} ${path5} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "\u2026";
+      }
+      log(logLine);
+    }
+  });
+  next();
+});
+(async () => {
+  const server = await registerRoutes(app);
+  app.use((err, _req, res, _next) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    throw err;
+  });
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+  const port = parseInt(process.env.PORT || "5000", 10);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
