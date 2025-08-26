@@ -22,6 +22,8 @@ export default async function handler(req: any, res: any) {
     const id = 'usr' + timestamp + random;
     
     console.log('🚀 Processing upload with ID:', id);
+    console.log('🌐 Request method:', req.method);
+    console.log('📋 Headers:', req.headers);
     
     // Read the request body as buffer
     const buffers: Buffer[] = [];
@@ -102,7 +104,8 @@ export default async function handler(req: any, res: any) {
     return res.status(201).json(restoration);
     
   } catch (error) {
-    console.error('❌ Upload error:', error);
-    return res.status(500).json({ error: 'Upload failed' });
+    console.error('❌ Upload error details:', error);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return res.status(500).json({ error: 'Upload failed', details: error instanceof Error ? error.message : String(error) });
   }
 }
