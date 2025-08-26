@@ -67,21 +67,17 @@ export default async function handler(req, res) {
         console.log('🔑 Nero AI API key found, processing with AI...');
         console.log('🔑 API Key:', neroApiKey.substring(0, 8) + '...');
         
-        // Try the correct Nero AI endpoint
-        const neroResponse = await fetch('https://api.nero.ai/v1/enhance', {
+        // Use the correct Nero AI Business API
+        const neroResponse = await fetch('https://api.nero.com/biz/api/task', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${neroApiKey}`,
+            'x-neroai-api-key': neroApiKey,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            image: base64Data,
-            model: 'photo-restoration',
-            settings: {
-              enhance_faces: true,
-              remove_scratches: true,
-              upscale: true,
-              colorize: false
+            type: 'ScratchFix',
+            body: {
+              image: `data:${photoFile.mimetype};base64,${base64Data}`
             }
           })
         });
@@ -90,17 +86,43 @@ export default async function handler(req, res) {
         
         if (neroResponse.ok) {
           const neroResult = await neroResponse.json();
-          console.log('📊 Nero AI response keys:', Object.keys(neroResult));
+          console.log('📊 Nero AI response:', JSON.stringify(neroResult, null, 2));
           
-          if (neroResult.result && neroResult.result.image) {
-            restoredImageUrl = `data:image/jpeg;base64,${neroResult.result.image}`;
-            console.log('✨ AI restoration completed successfully!');
-          } else if (neroResult.enhanced_image) {
-            restoredImageUrl = `data:image/jpeg;base64,${neroResult.enhanced_image}`;
-            console.log('✨ AI restoration completed successfully!');
+          if (neroResult.code === 0 && neroResult.data) {
+            const taskId = neroResult.data.task_id;
+            
+            if (neroResult.data.status === 'done' && neroResult.data.result) {
+              // Task completed immediately
+              restoredImageUrl = neroResult.data.result.output;
+              console.log('✨ AI restoration completed immediately!');
+            } else if (taskId) {
+              // Poll for completion (up to 30 seconds)
+              console.log('🔄 Polling Nero AI task:', taskId);
+              
+              for (let i = 0; i < 15; i++) { // Poll for 30 seconds max
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+                
+                const statusResponse = await fetch(`https://api.nero.com/biz/api/task?task_id=${taskId}`, {
+                  headers: { 'x-neroai-api-key': neroApiKey }
+                });
+                
+                if (statusResponse.ok) {
+                  const statusResult = await statusResponse.json();
+                  console.log('📊 Task status:', statusResult.data?.status);
+                  
+                  if (statusResult.data?.status === 'done' && statusResult.data.result) {
+                    restoredImageUrl = statusResult.data.result.output;
+                    console.log('✨ AI restoration completed successfully!');
+                    break;
+                  } else if (statusResult.data?.status === 'failed') {
+                    console.log('❌ Nero AI task failed');
+                    break;
+                  }
+                }
+              }
+            }
           } else {
-            console.log('⚠️ Nero AI response missing image data');
-            console.log('📊 Full response:', JSON.stringify(neroResult, null, 2));
+            console.log('⚠️ Nero AI API error:', neroResult.message || 'Unknown error');
           }
         } else {
           const errorText = await neroResponse.text();
