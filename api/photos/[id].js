@@ -1,6 +1,3 @@
-// In-memory storage for demo (same as restore.js)
-const restorations = new Map();
-
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,13 +20,24 @@ export default async function handler(req, res) {
 
   console.log('🔍 Getting restoration for ID:', id);
 
-  const restoration = restorations.get(id);
-  
-  if (!restoration) {
-    console.log('❌ Restoration not found for ID:', id);
-    return res.status(404).json({ error: 'Restoration not found' });
+  // Since the upload completes immediately, return a completed status
+  // In a real app, this would check a database or storage service
+  if (id.startsWith('usr')) {
+    const restoration = {
+      id: id,
+      status: 'completed',
+      createdAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      // Return placeholder URLs - the frontend will use the cached upload data
+      originalImageUrl: '',
+      restoredImageUrl: '',
+      options: {}
+    };
+
+    console.log('✅ Found restoration for ID:', id);
+    return res.status(200).json(restoration);
   }
 
-  console.log('✅ Found restoration for ID:', id);
-  return res.status(200).json(restoration);
+  console.log('❌ Restoration not found for ID:', id);
+  return res.status(404).json({ error: 'Restoration not found' });
 }

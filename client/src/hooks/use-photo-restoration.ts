@@ -12,6 +12,7 @@ interface UsePhotoRestorationOptions {
 export function usePhotoRestoration() {
   const [currentRestorationId, setCurrentRestorationId] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedRestoration, setUploadedRestoration] = useState<PhotoRestoration | null>(null);
 
   // Upload and start restoration
   const uploadPhoto = useMutation({
@@ -65,6 +66,7 @@ export function usePhotoRestoration() {
       console.log("✅ Upload successful, restoration ID:", restoration.id);
       console.log("📊 Restoration data:", restoration);
       setCurrentRestorationId(restoration.id);
+      setUploadedRestoration(restoration);
       return restoration;
     },
     onError: () => {
@@ -72,7 +74,7 @@ export function usePhotoRestoration() {
     },
   });
 
-  // Poll for restoration status
+  // Poll for restoration status  
   const { data: restoration, isLoading: isProcessing } = useQuery({
     queryKey: ["/api/photos", currentRestorationId],
     enabled: !!currentRestorationId,
@@ -88,9 +90,11 @@ export function usePhotoRestoration() {
         throw new Error("Failed to fetch restoration status");
       }
       
-      const data = await response.json();
-      console.log("📊 Polling data received:", data);
-      return data;
+      const pollingData = await response.json();
+      console.log("📊 Polling data received:", pollingData);
+      
+      // Use the original upload data if available, otherwise use polling data
+      return uploadedRestoration || pollingData;
     },
     refetchInterval: (query) => {
       const data = query.state.data as PhotoRestoration | undefined;

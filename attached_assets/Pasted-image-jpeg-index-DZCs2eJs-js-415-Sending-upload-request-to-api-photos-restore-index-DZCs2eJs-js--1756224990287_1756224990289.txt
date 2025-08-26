@@ -1,0 +1,191 @@
+image/jpeg
+index-DZCs2eJs.js:415 📤 Sending upload request to /api/photos/restore
+index-DZCs2eJs.js:415 🌐 Current window location: https://www.fenlox.com/
+index-DZCs2eJs.js:415 🌐 Base URL being used: https://www.fenlox.com/api/photos/restore
+index-DZCs2eJs.js:415 📨 Upload response status: 201
+index-DZCs2eJs.js:415 ✅ Upload successful, restoration ID: usrmesr0hx7h5i5af
+index-DZCs2eJs.js:415 📊 Restoration data: Object
+index-DZCs2eJs.js:415 🔄 Polling restoration status for ID: usrmesr0hx7h5i5af
+/api/photos/usrmesr0hx7h5i5af:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-DZCs2eJs.js:415 📨 Polling response status: 404
+index-DZCs2eJs.js:415 ❌ Polling failed: 404
+queryFn @ index-DZCs2eJs.js:415Understand this error
+index-DZCs2eJs.js:415 🔄 Polling restoration status for ID: usrmesr0hx7h5i5af
+/api/photos/usrmesr0hx7h5i5af:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-DZCs2eJs.js:415 📨 Polling response status: 404
+index-DZCs2eJs.js:415 ❌ Polling failed: 404
+queryFn @ index-DZCs2eJs.js:415Understand this error
+index-DZCs2eJs.js:415 🔄 Polling restoration status for ID: usrmesr0hx7h5i5af
+index-DZCs2eJs.js:415 
+            
+            
+           GET https://www.fenlox.com/api/photos/usrmesr0hx7h5i5af 404 (Not Found)
+queryFn @ index-DZCs2eJs.js:415
+i @ index-DZCs2eJs.js:48
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48Understand this error
+index-DZCs2eJs.js:415 📨 Polling response status: 404
+index-DZCs2eJs.js:415 ❌ Polling failed: 404
+queryFn @ index-DZCs2eJs.js:415
+await in queryFn
+i @ index-DZCs2eJs.js:48
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48Understand this error
+index-DZCs2eJs.js:415 🔄 Polling restoration status for ID: usrmesr0hx7h5i5af
+index-DZCs2eJs.js:415 
+            
+            
+           GET https://www.fenlox.com/api/photos/usrmesr0hx7h5i5af 404 (Not Found)
+queryFn @ index-DZCs2eJs.js:415
+i @ index-DZCs2eJs.js:48
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+setInterval
+_c @ index-DZCs2eJs.js:48
+Ic @ index-DZCs2eJs.js:48
+onQueryUpdate @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+batch @ index-DZCs2eJs.js:48
+qt @ index-DZCs2eJs.js:48
+l @ index-DZCs2eJs.js:48
+h @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+Promise.catch
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48Understand this error
+index-DZCs2eJs.js:415 📨 Polling response status: 404
+index-DZCs2eJs.js:415 ❌ Polling failed: 404
+queryFn @ index-DZCs2eJs.js:415
+await in queryFn
+i @ index-DZCs2eJs.js:48
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+setInterval
+_c @ index-DZCs2eJs.js:48
+Ic @ index-DZCs2eJs.js:48
+onQueryUpdate @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+batch @ index-DZCs2eJs.js:48
+qt @ index-DZCs2eJs.js:48
+l @ index-DZCs2eJs.js:48
+h @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+Promise.catch
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48Understand this error
+index-DZCs2eJs.js:415 🔄 Polling restoration status for ID: usrmesr0hx7h5i5af
+index-DZCs2eJs.js:415 
+            
+            
+           GET https://www.fenlox.com/api/photos/usrmesr0hx7h5i5af 404 (Not Found)
+queryFn @ index-DZCs2eJs.js:415
+i @ index-DZCs2eJs.js:48
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+setInterval
+_c @ index-DZCs2eJs.js:48
+Ic @ index-DZCs2eJs.js:48
+onQueryUpdate @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+batch @ index-DZCs2eJs.js:48
+qt @ index-DZCs2eJs.js:48
+l @ index-DZCs2eJs.js:48
+h @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+Promise.catch
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+setInterval
+_c @ index-DZCs2eJs.js:48
+Ic @ index-DZCs2eJs.js:48
+onQueryUpdate @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+batch @ index-DZCs2eJs.js:48
+qt @ index-DZCs2eJs.js:48
+l @ index-DZCs2eJs.js:48
+h @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+Promise.catch
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48Understand this error
+index-DZCs2eJs.js:415 📨 Polling response status: 404
+index-DZCs2eJs.js:415 ❌ Polling failed: 404
+queryFn @ index-DZCs2eJs.js:415
+await in queryFn
+i @ index-DZCs2eJs.js:48
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+setInterval
+_c @ index-DZCs2eJs.js:48
+Ic @ index-DZCs2eJs.js:48
+onQueryUpdate @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+batch @ index-DZCs2eJs.js:48
+qt @ index-DZCs2eJs.js:48
+l @ index-DZCs2eJs.js:48
+h @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+Promise.catch
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+setInterval
+_c @ index-DZCs2eJs.js:48
+Ic @ index-DZCs2eJs.js:48
+onQueryUpdate @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+batch @ index-DZCs2eJs.js:48
+qt @ index-DZCs2eJs.js:48
+l @ index-DZCs2eJs.js:48
+h @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48
+Promise.catch
+b @ index-DZCs2eJs.js:48
+start @ index-DZCs2eJs.js:48
+fetch @ index-DZCs2eJs.js:48
+Qs @ index-DZCs2eJs.js:48
+(anonymous) @ index-DZCs2eJs.js:48Understand this error
