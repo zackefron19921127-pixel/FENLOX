@@ -74,35 +74,9 @@ if (process.env.NODE_ENV === "production") {
   // Initialize app for production
   initializeApp();
 } else {
-  // Development mode - serve Vercel API routes directly
+  // Development mode - use same routes as production for consistency
   (async () => {
-    const server = await initializeApp();
-    
-    // Add Vercel API route handlers before Vite middleware
-    const restoreHandler = (await import("../api/photos/restore.js")).default;
-    const getPhotoHandler = (await import("../api/photos/[id].js")).default;
-    const contactHandler = (await import("../api/contact.js")).default;
-    
-    // Import and setup multer for file uploads
-    const multer = (await import("multer")).default;
-    const upload = multer({
-      storage: multer.diskStorage({
-        destination: "uploads/",
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).substr(2);
-          const ext = path.extname(file.originalname) || '.jpg';
-          cb(null, uniqueSuffix + ext);
-        }
-      }),
-      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-    });
-    
-    app.post("/api/photos/restore", upload.single("photo"), restoreHandler as any);
-    app.get("/api/photos/:id", (req, res) => {
-      req.query = { id: req.params.id };
-      getPhotoHandler(req, res);
-    });
-    app.post("/api/contact", contactHandler);
+    const server = await registerRoutes(app);
     
     await setupVite(app, server);
 
