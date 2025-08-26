@@ -211,7 +211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
 
   // Get restoration status  
-  app.get("/api/photos/restore/:id", async (req, res) => {
+  app.get("/api/photos/:id", async (req, res) => {
     try {
       const restoration = await storage.getPhotoRestoration(req.params.id);
       if (!restoration) {
@@ -278,6 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(sitemap);
   });
 
+  // Only create server if we don't already have one
   const httpServer = createServer(app);
   return httpServer;
 }

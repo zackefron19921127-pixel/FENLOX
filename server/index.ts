@@ -46,7 +46,15 @@ const app = createApp();
 
 // Register routes and setup app
 const initializeApp = async () => {
-  const server = await registerRoutes(app);
+  // In development, don't register routes yet - wait until after Vite setup
+  let server;
+  if (process.env.NODE_ENV === "production") {
+    server = await registerRoutes(app);
+  } else {
+    // Create a basic HTTP server for development
+    const { createServer } = await import("http");
+    server = createServer(app);
+  }
 
   // Add error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -65,9 +73,22 @@ if (process.env.NODE_ENV === "production") {
   // Initialize app for production
   initializeApp();
 } else {
-  // Development mode
+  // Development mode - serve Vercel API routes directly
   (async () => {
     const server = await initializeApp();
+    
+    // Add Vercel API route handlers before Vite middleware
+    const restoreHandler = (await import("../api/photos/restore.js")).default;
+    const getPhotoHandler = (await import("../api/photos/[id].js")).default;
+    const contactHandler = (await import("../api/contact.js")).default;
+    
+    app.post("/api/photos/restore", restoreHandler);
+    app.get("/api/photos/:id", (req, res) => {
+      req.query = { id: req.params.id };
+      getPhotoHandler(req, res);
+    });
+    app.post("/api/contact", contactHandler);
+    
     await setupVite(app, server);
 
     const port = parseInt(process.env.PORT || '5000', 10);
