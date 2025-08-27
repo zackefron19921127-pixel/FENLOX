@@ -94,7 +94,7 @@ export function usePhotoRestoration() {
       console.log("📊 Polling data received:", pollingData);
       
       // Use the original upload data if available, otherwise use polling data
-      return uploadedRestoration || pollingData;
+      return pollingData || uploadedRestoration;
     },
     refetchInterval: (query) => {
       const data = query.state.data as PhotoRestoration | undefined;
