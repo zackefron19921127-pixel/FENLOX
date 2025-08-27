@@ -1,7 +1,14 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { eq } from 'drizzle-orm';
+import { photoRestorations } from '@shared/schema';
+
+// Database connection
+const sql = neon(process.env.DATABASE_URL!);
+const db = drizzle(sql);
 import { insertPhotoRestorationSchema, insertContactSubmissionSchema } from "@shared/schema";
 import { neroAIService, type NeroAIOptions } from "./nero-ai-api";
 // import { replicateService, type ReplicateOptions } from "./replicate-api";
@@ -180,11 +187,12 @@ export async function registerRoutes(app: Express): Promise<void> {
       console.log("- originalImageUrl starts with:", originalImageUrl.substring(0, 50));
       console.log("- originalImageUrl contains SVG:", originalImageUrl.includes('svg'));
       
-      // Create restoration record
-      const restoration = await storage.createPhotoRestoration({
+      // Create restoration record in database
+      const [restoration] = await db.insert(photoRestorations).values({
         originalImageUrl,
         options,
-      });
+        status: 'processing'
+      }).returning();
       
       console.log("✅ Stored restoration:", {
         id: restoration.id,
@@ -197,17 +205,21 @@ export async function registerRoutes(app: Express): Promise<void> {
       // Process asynchronously
       processWithAI(filePath, options)
         .then(async (restoredImageUrl) => {
-          await storage.updatePhotoRestoration(restoration.id, {
-            status: "completed",
-            restoredImageUrl,
-            completedAt: new Date(),
-          });
+          await db.update(photoRestorations)
+            .set({
+              status: "completed",
+              restoredImageUrl,
+              completedAt: new Date()
+            })
+            .where(eq(photoRestorations.id, restoration.id));
         })
         .catch(async (error) => {
-          await storage.updatePhotoRestoration(restoration.id, {
-            status: "failed",
-            errorMessage: error instanceof Error ? error.message : "Processing failed",
-          });
+          await db.update(photoRestorations)
+            .set({
+              status: "failed",
+              errorMessage: error instanceof Error ? error.message : "Processing failed"
+            })
+            .where(eq(photoRestorations.id, restoration.id));
         })
         .finally(() => {
           // Clean up temporary file
@@ -234,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<void> {
     console.log("🚨🚨🚨 HIT MAIN ROUTES /api/photos/:id 🚨🚨🚨");
     try {
       console.log("🔍 Getting restoration for ID:", req.params.id);
-      const restoration = await storage.getPhotoRestoration(req.params.id);
+      const [restoration] = await db.select().from(photoRestorations).where(eq(photoRestorations.id, req.params.id));
       if (!restoration) {
         console.log("❌ Restoration not found for ID:", req.params.id);
         return res.status(404).json({ error: "Restoration not found" });
