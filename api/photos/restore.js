@@ -67,6 +67,9 @@ export default async function handler(req, res) {
         bufferLength: fileBuffer.length
       });
       
+      // TEMPORARY: Skip AI and force fallback enhancement for testing
+      console.log('🧪 DEBUG: FORCING FALLBACK ENHANCEMENT FOR TESTING');
+      
       // Use Nero AI API for photo restoration
       const neroApiKey = process.env.NERO_AI_API_KEY;
       console.log('🔍 DEBUG: Environment check:', {
@@ -75,7 +78,7 @@ export default async function handler(req, res) {
         keyPrefix: neroApiKey ? neroApiKey.substring(0, 8) + '...' : 'N/A'
       });
       
-      if (neroApiKey) {
+      if (false && neroApiKey) { // TEMPORARILY DISABLED FOR TESTING
         console.log('🔑 Nero AI API key found, processing with AI...');
         
         // Use the correct Nero AI Business API
@@ -143,7 +146,7 @@ export default async function handler(req, res) {
           console.log('⚠️ Error response:', errorText);
         }
       } else {
-        console.log('❌ No Nero AI API key found');
+        console.log('❌ No Nero AI API key found OR TEMPORARILY DISABLED FOR TESTING');
       }
       
       // Apply fallback enhancement only if AI didn't work
@@ -154,7 +157,7 @@ export default async function handler(req, res) {
       });
       
       if (restoredImageUrl === originalImageUrl) {
-        console.log('📸 AI processing failed, applying basic enhancements...');
+        console.log('📸 FORCED FALLBACK: Applying basic enhancements for testing...');
         
         // Import Sharp for image processing
         const sharp = await import('sharp');
