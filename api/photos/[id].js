@@ -1,3 +1,6 @@
+// In-memory storage for restorations (shared between upload and polling)
+const restorations = new Map();
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,21 +23,34 @@ export default async function handler(req, res) {
 
   console.log('🔍 Getting restoration for ID:', id);
 
-  // Since the upload completes immediately, return a completed status
-  // In a real app, this would check a database or storage service
+  // Try to get stored restoration data first
+  const storedRestoration = restorations.get(id);
+  
+  if (storedRestoration) {
+    console.log('✅ Found stored restoration for ID:', id);
+    console.log('📊 DEBUG: Stored data has images:', {
+      hasOriginal: !!storedRestoration.originalImageUrl,
+      hasRestored: !!storedRestoration.restoredImageUrl,
+      originalLength: storedRestoration.originalImageUrl.length,
+      restoredLength: storedRestoration.restoredImageUrl.length,
+      imagesAreDifferent: storedRestoration.originalImageUrl !== storedRestoration.restoredImageUrl
+    });
+    return res.status(200).json(storedRestoration);
+  }
+
+  // Fallback for IDs that exist but no stored data
   if (id.startsWith('usr')) {
     const restoration = {
       id: id,
       status: 'completed',
       createdAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
-      // Return placeholder URLs - the frontend will use the cached upload data
       originalImageUrl: '',
       restoredImageUrl: '',
       options: {}
     };
 
-    console.log('✅ Found restoration for ID:', id);
+    console.log('⚠️ Returning fallback for ID (no stored data):', id);
     return res.status(200).json(restoration);
   }
 
