@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     let restoredImageUrl = originalImageUrl; // fallback to original
     
     try {
-      console.log('🎨 Starting AI photo restoration...');
+      console.log('🎨 Starting AI photo restoration... [v2.1]');
       console.log('📊 DEBUG: File info:', {
         filename: photoFile.originalname,
         size: photoFile.size,
