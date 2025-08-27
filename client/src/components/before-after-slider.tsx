@@ -1,4 +1,4 @@
-import { useState, useRef, MouseEvent } from "react";
+import { useState, useRef, MouseEvent, TouchEvent } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Palette, Eye, Wrench, ArrowLeftRight } from "lucide-react";
@@ -23,20 +23,22 @@ export default function BeforeAfterSlider({
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = () => {
+  const handleStart = () => {
     setIsDragging(true);
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     setIsDragging(false);
   };
 
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+  const handleMove = (e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>) => {
     if (!isDragging || !containerRef.current) return;
     
     e.preventDefault();
     const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    
+    // Get X position from either mouse or touch event
+    const x = 'clientX' in e ? e.clientX - rect.left : e.touches[0].clientX - rect.left;
     const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
     
     // Use requestAnimationFrame for smooth updates
@@ -59,9 +61,11 @@ export default function BeforeAfterSlider({
         ref={containerRef}
         className="relative overflow-hidden rounded-2xl bg-gray-100 slider-container cursor-col-resize select-none"
         style={{ aspectRatio: "4/3" }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseMove={handleMove}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchMove={handleMove}
+        onTouchEnd={handleEnd}
         data-testid="before-after-slider"
       >
         {/* Original Image - No transitions during drag for smooth performance */}
@@ -115,7 +119,8 @@ export default function BeforeAfterSlider({
             boxShadow: "0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(59,130,246,0.3)",
             willChange: isDragging ? 'left' : 'auto'
           }}
-          onMouseDown={handleMouseDown}
+          onMouseDown={handleStart}
+          onTouchStart={handleStart}
           data-testid="slider-handle"
         >
           <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center border-2 border-white/50 ${!isDragging ? 'transition-all duration-200 hover:scale-110 hover:shadow-2xl' : ''}`}>
