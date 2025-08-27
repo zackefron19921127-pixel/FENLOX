@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     let restoredImageUrl = originalImageUrl; // fallback to original
     
     try {
-      console.log('🎨 Starting AI photo restoration... [v2.1]');
+      console.log('🎨 Starting AI photo restoration...');
       console.log('📊 DEBUG: File info:', {
         filename: photoFile.originalname,
         size: photoFile.size,
@@ -68,7 +68,6 @@ export default async function handler(req, res) {
       });
       
       // TEMPORARY: Skip AI and force fallback enhancement for testing
-      console.log('🧪 DEBUG: FORCING FALLBACK ENHANCEMENT FOR TESTING');
       
       // Use Nero AI API for photo restoration
       const neroApiKey = process.env.NERO_AI_API_KEY;
@@ -78,7 +77,7 @@ export default async function handler(req, res) {
         keyPrefix: neroApiKey ? neroApiKey.substring(0, 8) + '...' : 'N/A'
       });
       
-      if (false && neroApiKey) { // TEMPORARILY DISABLED FOR TESTING
+      if (neroApiKey) {
         console.log('🔑 Nero AI API key found, processing with AI...');
         
         // Use the correct Nero AI Business API
