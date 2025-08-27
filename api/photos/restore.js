@@ -1,5 +1,8 @@
 import formidable from 'formidable';
 import fs from 'fs';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { photoRestorations } from '../../shared/schema.js';
 
 // Disable body parsing for file uploads
 export const config = {
@@ -8,8 +11,9 @@ export const config = {
   },
 };
 
-// In-memory storage for demo
-const restorations = new Map();
+// Database connection
+const sql = neon(process.env.DATABASE_URL);
+const db = drizzle(sql);
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -210,18 +214,15 @@ export default async function handler(req, res) {
       // Keep original as fallback
     }
 
-    const restoration = {
+    // Store restoration in database
+    const [restoration] = await db.insert(photoRestorations).values({
       id: id,
       originalImageUrl: originalImageUrl,
       restoredImageUrl: restoredImageUrl,
       options: {},
       status: 'completed',
-      createdAt: new Date().toISOString(),
-      completedAt: new Date().toISOString()
-    };
-
-    // Store the restoration
-    restorations.set(id, restoration);
+      completedAt: new Date()
+    }).returning();
 
     console.log("✅ Photo restoration completed:", id);
     console.log("📊 DEBUG: Final restoration object:", {

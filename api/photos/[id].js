@@ -1,5 +1,11 @@
-// In-memory storage for restorations (shared between upload and polling)
-const restorations = new Map();
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { eq } from 'drizzle-orm';
+import { photoRestorations } from '../../shared/schema.js';
+
+// Database connection
+const sql = neon(process.env.DATABASE_URL);
+const db = drizzle(sql);
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -23,19 +29,23 @@ export default async function handler(req, res) {
 
   console.log('🔍 Getting restoration for ID:', id);
 
-  // Try to get stored restoration data first
-  const storedRestoration = restorations.get(id);
-  
-  if (storedRestoration) {
-    console.log('✅ Found stored restoration for ID:', id);
-    console.log('📊 DEBUG: Stored data has images:', {
-      hasOriginal: !!storedRestoration.originalImageUrl,
-      hasRestored: !!storedRestoration.restoredImageUrl,
-      originalLength: storedRestoration.originalImageUrl.length,
-      restoredLength: storedRestoration.restoredImageUrl.length,
-      imagesAreDifferent: storedRestoration.originalImageUrl !== storedRestoration.restoredImageUrl
-    });
-    return res.status(200).json(storedRestoration);
+  try {
+    // Get restoration from database
+    const [restoration] = await db.select().from(photoRestorations).where(eq(photoRestorations.id, id));
+    
+    if (restoration) {
+      console.log('✅ Found database restoration for ID:', id);
+      console.log('📊 DEBUG: Database data has images:', {
+        hasOriginal: !!restoration.originalImageUrl,
+        hasRestored: !!restoration.restoredImageUrl,
+        originalLength: restoration.originalImageUrl?.length || 0,
+        restoredLength: restoration.restoredImageUrl?.length || 0,
+        imagesAreDifferent: restoration.originalImageUrl !== restoration.restoredImageUrl
+      });
+      return res.status(200).json(restoration);
+    }
+  } catch (dbError) {
+    console.error('❌ Database error:', dbError);
   }
 
   // Fallback for IDs that exist but no stored data - create sample enhanced data
