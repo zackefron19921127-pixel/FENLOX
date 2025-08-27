@@ -252,10 +252,30 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(404).json({ error: "Restoration not found" });
       }
       
+      // Convert file path to base64 data URL for restoredImageUrl
+      if (restoration.restoredImageUrl && restoration.restoredImageUrl.startsWith('/uploads/')) {
+        try {
+          const filePath = restoration.restoredImageUrl.replace('/uploads/', 'uploads/');
+          if (fs.existsSync(filePath)) {
+            const fileBuffer = fs.readFileSync(filePath);
+            const fileExtension = path.extname(filePath).toLowerCase();
+            const mimeType = fileExtension === '.jpeg' || fileExtension === '.jpg' ? 'image/jpeg' : 
+                           fileExtension === '.png' ? 'image/png' : 
+                           fileExtension === '.svg' ? 'image/svg+xml' : 'image/jpeg';
+            restoration.restoredImageUrl = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
+            console.log("✅ Converted enhanced image to base64:", fileExtension, fileBuffer.length, "bytes");
+          }
+        } catch (error) {
+          console.error("❌ Error converting enhanced image:", error);
+        }
+      }
+
       console.log("✅ Found restoration:", {
         id: restoration.id,
         status: restoration.status,
         originalImageUrl: restoration.originalImageUrl.substring(0, 50),
+        hasRestoredImage: !!restoration.restoredImageUrl,
+        restoredImageLength: restoration.restoredImageUrl?.length || 0,
         containsSvg: restoration.originalImageUrl.includes('svg')
       });
       
