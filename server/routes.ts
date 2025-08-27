@@ -253,6 +253,12 @@ export async function registerRoutes(app: Express): Promise<void> {
       }
       
       // Convert file path to base64 data URL for restoredImageUrl
+      console.log("🔍 DEBUG: restoredImageUrl check:", {
+        hasRestored: !!restoration.restoredImageUrl,
+        restoredValue: restoration.restoredImageUrl,
+        startsWithUploads: restoration.restoredImageUrl?.startsWith('/uploads/')
+      });
+      
       if (restoration.restoredImageUrl && restoration.restoredImageUrl.startsWith('/uploads/')) {
         try {
           const filePath = restoration.restoredImageUrl.replace('/uploads/', 'uploads/');
