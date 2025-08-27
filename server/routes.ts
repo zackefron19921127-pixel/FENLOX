@@ -4,7 +4,7 @@ import { createServer, type Server } from "http";
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq } from 'drizzle-orm';
-import { photoRestorations } from '@shared/schema';
+import { photoRestorations, contactSubmissions } from '@shared/schema';
 
 // Database connection
 const sql = neon(process.env.DATABASE_URL!);
@@ -274,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(400).json({ error: "Invalid contact data", details: validationResult.error });
       }
 
-      const submission = await storage.createContactSubmission(validationResult.data);
+      const [submission] = await db.insert(contactSubmissions).values(validationResult.data).returning();
       res.status(201).json({ message: "Contact submission received", id: submission.id });
     } catch (error) {
       console.error("Contact submission error:", error);
