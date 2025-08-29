@@ -93,7 +93,14 @@ export function usePhotoRestoration() {
       const pollingData = await response.json();
       console.log("📊 Polling data received:", pollingData);
       
-      // Use the original upload data if available, otherwise use polling data
+      // Merge status from polling with image data from upload
+      if (uploadedRestoration && pollingData) {
+        return {
+          ...uploadedRestoration,
+          status: pollingData.status,
+          completedAt: pollingData.completedAt
+        };
+      }
       return pollingData || uploadedRestoration;
     },
     refetchInterval: (query) => {

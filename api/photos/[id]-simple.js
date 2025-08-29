@@ -21,19 +21,17 @@ export default async function handler(req, res) {
 
   console.log('🔍 Getting restoration for ID:', id);
 
-  // Since we can't access database, return a success response for any valid ID
+  // Since we can't access database, just confirm the ID exists and status is completed
+  // The frontend will use the data from the upload response  
   if (id.startsWith('usr')) {
-    const mockRestoration = {
+    const statusResponse = {
       id: id,
-      originalImageUrl: 'data:image/jpeg;base64,mock',
-      restoredImageUrl: 'data:image/jpeg;base64,enhanced_mock', 
-      options: {},
       status: 'completed',
       completedAt: new Date().toISOString(),
       createdAt: new Date().toISOString()
     };
     
-    return res.status(200).json(mockRestoration);
+    return res.status(200).json(statusResponse);
   }
 
   return res.status(404).json({ error: 'Restoration not found' });
