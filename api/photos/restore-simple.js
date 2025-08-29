@@ -1,6 +1,5 @@
 import formidable from 'formidable';
 import fs from 'fs';
-import sharp from 'sharp';
 
 // Disable body parsing for file uploads
 export const config = {
@@ -138,37 +137,10 @@ export default async function handler(req, res) {
         console.log('❌ No Nero AI API key found');
       }
       
-      // Apply fallback enhancement if AI didn't work
+      // API-only mode: No fallback processing
       if (restoredImageUrl === originalImageUrl) {
-        console.log('📸 Applying fallback enhancements...');
-        
-        try {
-          // Apply MORE NOTICEABLE enhancements as fallback
-          console.log('🎨 Applying visible enhancements...');
-          const enhancedBuffer = await sharp(fileBuffer)
-            .modulate({
-              brightness: 1.4,    // 40% brighter (much more visible)
-              saturation: 1.5,    // 50% more saturated (much more visible)
-            })
-            .sharpen(2)           // Stronger sharpening  
-            .gamma(1.3)          // More gamma boost
-            .jpeg({ quality: 95 }) // High quality output
-            .toBuffer();
-            
-          const enhancedBase64 = enhancedBuffer.toString('base64');
-          restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
-          console.log('✅ VISIBLE enhancement completed!');
-          console.log('📊 Enhancement applied - images should look noticeably different');
-        } catch (sharpError) {
-          console.error('❌ Sharp processing failed:', sharpError);
-          
-          // Force visible enhancement - duplicate and modify the image
-          console.log('🔧 Force enhancing with manual modification...');
-          const enhancedBase64 = base64Data; // Use original base64
-          // Create a noticeably different version by adding brightness filter
-          restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
-          console.log('✅ Forced enhancement completed - should show difference');
-        }
+        console.log('⚠️ Nero AI did not enhance the image - returning original');
+        console.log('🎯 API-only mode: No local processing fallback');
       }
       
     } catch (error) {
