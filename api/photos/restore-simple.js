@@ -71,7 +71,8 @@ export default async function handler(req, res) {
       if (neroApiKey) {
         console.log('🔑 Nero AI API key found, processing with AI...');
         
-        // Use the correct Nero AI Business API
+        // Use the correct Nero AI Business API with detailed logging
+        console.log('🔑 Making Nero AI request with key length:', neroApiKey.length);
         const neroResponse = await fetch('https://api.nero.com/biz/api/task', {
           method: 'POST',
           headers: {
@@ -87,10 +88,14 @@ export default async function handler(req, res) {
         });
 
         console.log('📡 Nero AI response status:', neroResponse.status);
+        console.log('📡 Response headers:', Object.fromEntries(neroResponse.headers.entries()));
+        
+        const responseText = await neroResponse.text();
+        console.log('📡 Raw response:', responseText.substring(0, 500));
         
         if (neroResponse.ok) {
-          const neroResult = await neroResponse.json();
-          console.log('📊 DEBUG: Nero AI response:', JSON.stringify(neroResult, null, 2));
+          const neroResult = JSON.parse(responseText);
+          console.log('📊 DEBUG: Nero AI response parsed:', JSON.stringify(neroResult, null, 2));
           
           if (neroResult.code === 0 && neroResult.data) {
             const taskId = neroResult.data.task_id;
