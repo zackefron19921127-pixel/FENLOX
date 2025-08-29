@@ -1,5 +1,8 @@
 import formidable from 'formidable';
 import fs from 'fs';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { photoRestorations } from '../../shared/schema.js';
 
 // Disable body parsing for file uploads
 export const config = {
@@ -7,6 +10,19 @@ export const config = {
     bodyParser: false,
   },
 };
+
+// Database connection (with error handling)
+let db = null;
+try {
+  const sql = neon(process.env.DATABASE_URL, {
+    fetchConnectionCache: true,
+    poolQueryViaFetch: true,
+  });
+  db = drizzle(sql);
+  console.log('✅ Database connection initialized');
+} catch (dbError) {
+  console.error('❌ Database connection failed:', dbError);
+}
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -153,16 +169,49 @@ export default async function handler(req, res) {
       // Keep original as fallback
     }
 
-    // Return result without database (for now)
-    const restoration = {
-      id: id,
-      originalImageUrl: originalImageUrl,
-      restoredImageUrl: restoredImageUrl,
-      options: {},
-      status: 'completed',
-      completedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString()
-    };
+    // Store in database if available, otherwise return in-memory result
+    let restoration;
+    
+    if (db) {
+      try {
+        console.log('💾 Saving to database...');
+        const [savedRestoration] = await db.insert(photoRestorations).values({
+          id: id,
+          originalImageUrl: originalImageUrl,
+          restoredImageUrl: restoredImageUrl,
+          options: {},
+          status: 'completed',
+          completedAt: new Date()
+        }).returning();
+        
+        restoration = savedRestoration;
+        console.log('✅ Photo saved to database!');
+      } catch (dbSaveError) {
+        console.error('❌ Database save failed:', dbSaveError);
+        // Fallback to in-memory result
+        restoration = {
+          id: id,
+          originalImageUrl: originalImageUrl,
+          restoredImageUrl: restoredImageUrl,
+          options: {},
+          status: 'completed',
+          completedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString()
+        };
+      }
+    } else {
+      // No database - return in-memory result
+      restoration = {
+        id: id,
+        originalImageUrl: originalImageUrl,
+        restoredImageUrl: restoredImageUrl,
+        options: {},
+        status: 'completed',
+        completedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+      console.log('⚠️ No database - using in-memory storage');
+    }
 
     console.log("✅ Photo restoration completed:", id);
     console.log("📊 Final restoration object:", {
@@ -172,7 +221,8 @@ export default async function handler(req, res) {
       originalImageSize: restoration.originalImageUrl.length,
       restoredImageSize: restoration.restoredImageUrl.length,
       imagesAreDifferent: restoration.originalImageUrl !== restoration.restoredImageUrl,
-      status: restoration.status
+      status: restoration.status,
+      savedToDatabase: !!db
     });
 
     return res.status(201).json(restoration);

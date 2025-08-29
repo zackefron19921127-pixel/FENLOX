@@ -41,7 +41,7 @@ export function usePhotoRestoration() {
         });
       }, 200);
 
-      const uploadUrl = "/api/photos/restore";
+      const uploadUrl = "/api/photos/restore-simple";
       console.log("📤 Sending upload request to", uploadUrl);
       console.log("🌐 Current window location:", window.location.href);
       console.log("🌐 Base URL being used:", window.location.origin + uploadUrl);
@@ -82,7 +82,7 @@ export function usePhotoRestoration() {
       if (!currentRestorationId) return null;
       console.log("🔄 Polling restoration status for ID:", currentRestorationId);
       
-      const response = await fetch(`/api/photos/${currentRestorationId}`);
+      const response = await fetch(`/api/photos/${currentRestorationId}-simple`);
       console.log("📨 Polling response status:", response.status);
       
       if (!response.ok) {
