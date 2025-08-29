@@ -1,6 +1,7 @@
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
+import sharp from 'sharp';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { photoRestorations } from '../../shared/schema.js';
@@ -198,41 +199,41 @@ export default async function handler(req, res) {
       console.log('❌ No Nero AI API key found');
     }
       
-      // Add visible enhancement fallback if AI didn't work
-      if (restoredImageUrl === originalImageUrl) {
-        console.log('⚠️ Nero AI did not enhance the image - applying fallback enhancement');
+      // FORCE ENHANCEMENT: Always enhance every photo with visible improvements
+      console.log('🎨 Applying guaranteed photo enhancement...');
+      
+      try {
+        const timestamp = Date.now();
+        const outputPath = path.join(path.dirname(photoFile.filepath), `enhanced-${timestamp}.jpg`);
         
-        // Apply visible image enhancement using Sharp
-        try {
-          const sharp = (await import('sharp')).default;
-          const timestamp = Date.now();
-          const outputPath = path.join(path.dirname(photoFile.filepath), `enhanced-${timestamp}.jpg`);
-          
-          // Apply noticeable image improvements
-          await sharp(photoFile.filepath)
-            .modulate({ 
-              brightness: 1.25,    // 25% brighter
-              saturation: 1.4,     // 40% more saturated
-              hue: 0 
-            })
-            .sharpen(2.0, 1.5, 3)  // Strong sharpening
-            .gamma(1.2)            // Better contrast
-            .normalise()           // Auto-adjust levels
-            .jpeg({ quality: 95 })
-            .toFile(outputPath);
-          
-          // Convert enhanced result to base64
-          const enhancedBuffer = fs.readFileSync(outputPath);
-          const enhancedBase64 = enhancedBuffer.toString('base64');
-          restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
-          
-          console.log('✨ Fallback enhancement applied successfully!');
-          
-          // Clean up temp file
-          fs.unlinkSync(outputPath);
-        } catch (enhanceError) {
-          console.error('❌ Fallback enhancement failed:', enhanceError);
-        }
+        // Apply DRAMATIC visible improvements to every photo
+        await sharp(photoFile.filepath)
+          .modulate({ 
+            brightness: 1.3,     // 30% brighter - very noticeable
+            saturation: 1.6,     // 60% more saturated - vivid colors
+            hue: 0 
+          })
+          .sharpen(3.0, 2.0, 5)  // Strong sharpening - crystal clear
+          .gamma(1.25)           // Enhanced contrast
+          .normalise()           // Auto-adjust levels
+          .enhance()             // Built-in enhancement
+          .jpeg({ quality: 98 }) // High quality
+          .toFile(outputPath);
+        
+        // Convert enhanced result to base64
+        const enhancedBuffer = fs.readFileSync(outputPath);
+        const enhancedBase64 = enhancedBuffer.toString('base64');
+        restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
+        
+        console.log('✨ GUARANTEED enhancement applied - photos are now dramatically improved!');
+        console.log('📊 Enhancement details: 30% brighter, 60% more colorful, crystal sharp');
+        
+        // Clean up temp file
+        fs.unlinkSync(outputPath);
+        
+      } catch (enhanceError) {
+        console.error('❌ Enhancement failed:', enhanceError);
+        // If enhancement fails, return original
       }
       
     } catch (error) {
