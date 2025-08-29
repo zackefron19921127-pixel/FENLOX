@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq } from 'drizzle-orm';
@@ -34,6 +36,24 @@ export default async function handler(req, res) {
     const [restoration] = await db.select().from(photoRestorations).where(eq(photoRestorations.id, id));
     
     if (restoration) {
+      // Convert file path to base64 data URL for restoredImageUrl
+      if (restoration.restoredImageUrl && restoration.restoredImageUrl.startsWith('/uploads/')) {
+        try {
+          const filePath = restoration.restoredImageUrl.replace('/uploads/', 'uploads/');
+          if (fs.existsSync(filePath)) {
+            const fileBuffer = fs.readFileSync(filePath);
+            const fileExtension = path.extname(filePath).toLowerCase();
+            const mimeType = fileExtension === '.jpeg' || fileExtension === '.jpg' ? 'image/jpeg' : 
+                           fileExtension === '.png' ? 'image/png' : 
+                           fileExtension === '.svg' ? 'image/svg+xml' : 'image/jpeg';
+            restoration.restoredImageUrl = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
+            console.log("✅ Converted enhanced image to base64:", fileExtension, fileBuffer.length, "bytes");
+          }
+        } catch (error) {
+          console.error("❌ Error converting enhanced image:", error);
+        }
+      }
+      
       console.log('✅ Found database restoration for ID:', id);
       console.log('📊 DEBUG: Database data has images:', {
         hasOriginal: !!restoration.originalImageUrl,
