@@ -1,7 +1,6 @@
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
-import sharp from 'sharp';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { photoRestorations } from '../../shared/schema.js';
@@ -125,9 +124,11 @@ export default async function handler(req, res) {
         }
         
         if (publicImageUrl) {
-          // Use the correct Nero AI Business API with public URL
-          console.log('🔑 Making Nero AI request with public URL');
-          const neroResponse = await fetch('https://api.nero.com/biz/api/task', {
+          // Use Nero AI API with multiple enhancement effects for dramatic results
+          console.log('🔑 Making Nero AI request with public URL for comprehensive enhancement');
+          
+          // Apply ScratchFix first
+          const scratchFixResponse = await fetch('https://api.nero.com/biz/api/task', {
             method: 'POST',
             headers: {
               'x-neroai-api-key': neroApiKey,
@@ -141,28 +142,18 @@ export default async function handler(req, res) {
             })
           });
 
-        console.log('📡 Nero AI response status:', neroResponse.status);
-        console.log('📡 Response headers:', Object.fromEntries(neroResponse.headers.entries()));
-        
-        const responseText = await neroResponse.text();
-        console.log('📡 Raw response:', responseText.substring(0, 500));
-        
-        if (neroResponse.ok) {
-          const neroResult = JSON.parse(responseText);
-          console.log('📊 DEBUG: Nero AI response parsed:', JSON.stringify(neroResult, null, 2));
+          console.log('📡 ScratchFix response status:', scratchFixResponse.status);
           
-          if (neroResult.code === 0 && neroResult.data) {
-            const taskId = neroResult.data.task_id;
-            
-            if (neroResult.data.status === 'done' && neroResult.data.result) {
-              // Task completed immediately
-              restoredImageUrl = neroResult.data.result.output;
-              console.log('✨ AI restoration completed immediately!');
-            } else if (taskId) {
-              // Poll for completion (up to 30 seconds)
-              console.log('🔄 Polling Nero AI task:', taskId);
+          if (scratchFixResponse.ok) {
+            const scratchFixResult = await scratchFixResponse.json();
+            console.log('📊 ScratchFix result:', scratchFixResult);
+          
+            if (scratchFixResult.code === 0 && scratchFixResult.data?.task_id) {
+              const taskId = scratchFixResult.data.task_id;
+              console.log('🔄 Polling ScratchFix task:', taskId);
               
-              for (let i = 0; i < 15; i++) { // Poll for 30 seconds max
+              // Poll for ScratchFix completion with longer timeout
+              for (let i = 0; i < 30; i++) { // 60 seconds max for real AI processing
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
                 
                 const statusResponse = await fetch(`https://api.nero.com/biz/api/task?task_id=${taskId}`, {
@@ -171,27 +162,41 @@ export default async function handler(req, res) {
                 
                 if (statusResponse.ok) {
                   const statusResult = await statusResponse.json();
-                  console.log('📊 Task status:', statusResult.data?.status);
+                  console.log(`📊 ScratchFix status (${i+1}/30):`, statusResult.data?.status);
                   
-                  if (statusResult.data?.status === 'done' && statusResult.data.result) {
-                    restoredImageUrl = statusResult.data.result.output;
-                    console.log('✨ AI restoration completed successfully!');
+                  if (statusResult.data?.status === 'done' && statusResult.data.result?.output) {
+                    const enhancedImageUrl = statusResult.data.result.output;
+                    console.log('✨ ScratchFix completed! Enhanced URL:', enhancedImageUrl);
+                    
+                    // Download the AI-enhanced result
+                    try {
+                      const downloadResponse = await fetch(enhancedImageUrl);
+                      if (downloadResponse.ok) {
+                        const enhancedBuffer = Buffer.from(await downloadResponse.arrayBuffer());
+                        const enhancedBase64 = enhancedBuffer.toString('base64');
+                        restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
+                        console.log('🎯 API ENHANCEMENT SUCCESS: Photo enhanced by Nero AI!');
+                      }
+                    } catch (downloadError) {
+                      console.error('❌ Failed to download enhanced result:', downloadError);
+                    }
                     break;
                   } else if (statusResult.data?.status === 'failed') {
-                    console.log('❌ Nero AI task failed');
+                    console.log('❌ ScratchFix task failed:', statusResult.data.msg);
                     break;
                   }
+                } else {
+                  console.log(`⏳ Status check failed (${i+1}/30):`, statusResponse.status);
                 }
               }
+            } else {
+              console.log('⚠️ ScratchFix API error:', scratchFixResult.message || 'No task created');
             }
           } else {
-            console.log('⚠️ Nero AI API error:', neroResult.message || 'Unknown error');
+            const errorText = await scratchFixResponse.text();
+            console.log('⚠️ ScratchFix failed with status:', scratchFixResponse.status);
+            console.log('⚠️ Error response:', errorText);
           }
-        } else {
-          const errorText = await neroResponse.text();
-          console.log('⚠️ Nero AI failed with status:', neroResponse.status);
-          console.log('⚠️ Error response:', errorText);
-        }
       } else {
         console.log('⚠️ No public image URL - skipping AI processing');
       }
@@ -199,41 +204,12 @@ export default async function handler(req, res) {
       console.log('❌ No Nero AI API key found');
     }
       
-      // FORCE ENHANCEMENT: Always enhance every photo with visible improvements
-      console.log('🎨 Applying guaranteed photo enhancement...');
-      
-      try {
-        const timestamp = Date.now();
-        const outputPath = path.join(path.dirname(photoFile.filepath), `enhanced-${timestamp}.jpg`);
-        
-        // Apply DRAMATIC visible improvements to every photo
-        await sharp(photoFile.filepath)
-          .modulate({ 
-            brightness: 1.3,     // 30% brighter - very noticeable
-            saturation: 1.6,     // 60% more saturated - vivid colors
-            hue: 0 
-          })
-          .sharpen(3.0, 2.0, 5)  // Strong sharpening - crystal clear
-          .gamma(1.25)           // Enhanced contrast
-          .normalise()           // Auto-adjust levels
-          .enhance()             // Built-in enhancement
-          .jpeg({ quality: 98 }) // High quality
-          .toFile(outputPath);
-        
-        // Convert enhanced result to base64
-        const enhancedBuffer = fs.readFileSync(outputPath);
-        const enhancedBase64 = enhancedBuffer.toString('base64');
-        restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
-        
-        console.log('✨ GUARANTEED enhancement applied - photos are now dramatically improved!');
-        console.log('📊 Enhancement details: 30% brighter, 60% more colorful, crystal sharp');
-        
-        // Clean up temp file
-        fs.unlinkSync(outputPath);
-        
-      } catch (enhanceError) {
-        console.error('❌ Enhancement failed:', enhanceError);
-        // If enhancement fails, return original
+      // Check if API enhanced the photo
+      if (restoredImageUrl === originalImageUrl) {
+        console.log('⚠️ API did not enhance the photo - returning original');
+        console.log('🎯 API-ONLY mode: No local processing fallback per user request');
+      } else {
+        console.log('✅ API ENHANCEMENT SUCCESS: Photo processed by Nero AI API!');
       }
       
     } catch (error) {
