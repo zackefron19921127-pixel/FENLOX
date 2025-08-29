@@ -12,9 +12,16 @@ export const config = {
   },
 };
 
-// Database connection
-const sql = neon(process.env.DATABASE_URL);
-const db = drizzle(sql);
+// Database connection with error handling
+let db;
+try {
+  const sql = neon(process.env.DATABASE_URL, {
+    fetchConnectionCache: true,
+  });
+  db = drizzle(sql);
+} catch (dbError) {
+  console.error('❌ Database initialization error:', dbError);
+}
 
 export default async function handler(req, res) {
   // Set CORS headers

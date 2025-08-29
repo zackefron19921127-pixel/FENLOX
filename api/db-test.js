@@ -25,9 +25,12 @@ export default async function handler(req, res) {
     console.log('✅ DATABASE_URL exists, length:', dbUrl.length);
     console.log('🔗 Database URL preview:', dbUrl.substring(0, 30) + '...');
     
-    // Test connection
+    // Test connection with proper configuration
     console.log('🔌 Testing database connection...');
-    const sql = neon(dbUrl);
+    const sql = neon(dbUrl, {
+      fetchConnectionCache: true,
+      poolQueryViaFetch: true,
+    });
     
     const result = await sql`SELECT 1 as test`;
     console.log('✅ Database connection successful:', result);
