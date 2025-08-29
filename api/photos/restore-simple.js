@@ -87,21 +87,57 @@ export default async function handler(req, res) {
       if (neroApiKey) {
         console.log('🔑 Nero AI API key found, processing with AI...');
         
-        // Use the correct Nero AI Business API with detailed logging
-        console.log('🔑 Making Nero AI request with key length:', neroApiKey.length);
-        const neroResponse = await fetch('https://api.nero.com/biz/api/task', {
-          method: 'POST',
-          headers: {
-            'x-neroai-api-key': neroApiKey,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            type: 'ScratchFix',
-            body: {
-              image: `data:${photoFile.mimetype};base64,${base64Data}`
+        // First upload image to public hosting (Nero AI needs public URLs)
+        console.log('📤 Uploading image to public hosting...');
+        let publicImageUrl;
+        
+        try {
+          // Upload to catbox.moe for public access
+          const formData = new FormData();
+          const blob = new Blob([fileBuffer], { type: photoFile.mimetype });
+          formData.append('fileToUpload', blob, 'image.jpg');
+          formData.append('reqtype', 'fileupload');
+          
+          const uploadResponse = await fetch('https://catbox.moe/user/api.php', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (uploadResponse.ok) {
+            const resultUrl = await uploadResponse.text();
+            if (resultUrl.startsWith('https://files.catbox.moe/')) {
+              publicImageUrl = resultUrl;
+              console.log('📤 Image uploaded successfully:', publicImageUrl);
             }
-          })
-        });
+          }
+          
+          if (!publicImageUrl) {
+            throw new Error('Failed to upload image to public hosting');
+          }
+          
+        } catch (uploadError) {
+          console.error('❌ Image upload failed:', uploadError);
+          // Skip AI processing if we can't upload the image
+          console.log('⚠️ Skipping AI processing - using original image');
+          publicImageUrl = null;
+        }
+        
+        if (publicImageUrl) {
+          // Use the correct Nero AI Business API with public URL
+          console.log('🔑 Making Nero AI request with public URL');
+          const neroResponse = await fetch('https://api.nero.com/biz/api/task', {
+            method: 'POST',
+            headers: {
+              'x-neroai-api-key': neroApiKey,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              type: 'ScratchFix',
+              body: {
+                image: publicImageUrl
+              }
+            })
+          });
 
         console.log('📡 Nero AI response status:', neroResponse.status);
         console.log('📡 Response headers:', Object.fromEntries(neroResponse.headers.entries()));
@@ -155,8 +191,11 @@ export default async function handler(req, res) {
           console.log('⚠️ Error response:', errorText);
         }
       } else {
-        console.log('❌ No Nero AI API key found');
+        console.log('⚠️ No public image URL - skipping AI processing');
       }
+    } else {
+      console.log('❌ No Nero AI API key found');
+    }
       
       // API-only mode: No fallback processing
       if (restoredImageUrl === originalImageUrl) {
