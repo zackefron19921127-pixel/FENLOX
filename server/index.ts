@@ -54,10 +54,13 @@ const app = createApp();
 
 // Register routes and setup app
 const initializeApp = async () => {
-  // In development, don't register routes yet - wait until after Vite setup
+  // Register routes for both development and production
+  await registerRoutes(app);
+  
   let server;
   if (process.env.NODE_ENV === "production") {
-    server = await registerRoutes(app);
+    const { createServer } = await import("http");
+    server = createServer(app);
   } else {
     // Create a basic HTTP server for development
     const { createServer } = await import("http");
