@@ -12,16 +12,12 @@ export const config = {
   },
 };
 
-// Database connection with error handling
-let db;
-try {
-  const sql = neon(process.env.DATABASE_URL, {
-    fetchConnectionCache: true,
-  });
-  db = drizzle(sql);
-} catch (dbError) {
-  console.error('❌ Database initialization error:', dbError);
-}
+// Database connection optimized for Vercel
+const sql = neon(process.env.DATABASE_URL, {
+  fetchConnectionCache: true,
+  poolQueryViaFetch: true,
+});
+const db = drizzle(sql);
 
 export default async function handler(req, res) {
   // Set CORS headers
