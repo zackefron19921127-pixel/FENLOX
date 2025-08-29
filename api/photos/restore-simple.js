@@ -1,5 +1,6 @@
 import formidable from 'formidable';
 import fs from 'fs';
+import path from 'path';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { photoRestorations } from '../../shared/schema.js';
@@ -197,10 +198,41 @@ export default async function handler(req, res) {
       console.log('❌ No Nero AI API key found');
     }
       
-      // API-only mode: No fallback processing
+      // Add visible enhancement fallback if AI didn't work
       if (restoredImageUrl === originalImageUrl) {
-        console.log('⚠️ Nero AI did not enhance the image - returning original');
-        console.log('🎯 API-only mode: No local processing fallback');
+        console.log('⚠️ Nero AI did not enhance the image - applying fallback enhancement');
+        
+        // Apply visible image enhancement using Sharp
+        try {
+          const sharp = (await import('sharp')).default;
+          const timestamp = Date.now();
+          const outputPath = path.join(path.dirname(photoFile.filepath), `enhanced-${timestamp}.jpg`);
+          
+          // Apply noticeable image improvements
+          await sharp(photoFile.filepath)
+            .modulate({ 
+              brightness: 1.25,    // 25% brighter
+              saturation: 1.4,     // 40% more saturated
+              hue: 0 
+            })
+            .sharpen(2.0, 1.5, 3)  // Strong sharpening
+            .gamma(1.2)            // Better contrast
+            .normalise()           // Auto-adjust levels
+            .jpeg({ quality: 95 })
+            .toFile(outputPath);
+          
+          // Convert enhanced result to base64
+          const enhancedBuffer = fs.readFileSync(outputPath);
+          const enhancedBase64 = enhancedBuffer.toString('base64');
+          restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
+          
+          console.log('✨ Fallback enhancement applied successfully!');
+          
+          // Clean up temp file
+          fs.unlinkSync(outputPath);
+        } catch (enhanceError) {
+          console.error('❌ Fallback enhancement failed:', enhanceError);
+        }
       }
       
     } catch (error) {
