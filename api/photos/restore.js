@@ -1,5 +1,6 @@
 import formidable from 'formidable';
 import fs from 'fs';
+import sharp from 'sharp';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { photoRestorations } from '../../shared/schema.js';
@@ -163,14 +164,9 @@ export default async function handler(req, res) {
         console.log('📸 FORCED FALLBACK: Applying basic enhancements for testing...');
         
         try {
-          // Import Sharp for image processing
-          console.log('🔧 DEBUG: Importing Sharp...');
-          const sharp = await import('sharp');
-          console.log('🔧 DEBUG: Sharp imported successfully');
-          
           // Apply basic enhancements as fallback
           console.log('🔧 DEBUG: Starting image processing...');
-          const enhancedBuffer = await sharp.default(fileBuffer)
+          const enhancedBuffer = await sharp(fileBuffer)
             .modulate({
               brightness: 1.2,    // 20% brighter
               saturation: 1.3,    // 30% more saturated
