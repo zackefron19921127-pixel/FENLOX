@@ -38,6 +38,8 @@ export default function UploadResultsSlider({
     if (!isDragging || !containerRef.current) return;
     
     e.preventDefault();
+    e.stopPropagation();
+    
     const rect = containerRef.current.getBoundingClientRect();
     
     // Get X position from either mouse or touch event
@@ -84,7 +86,10 @@ export default function UploadResultsSlider({
         <div
           ref={containerRef}
           className="relative overflow-hidden rounded-2xl bg-gray-100 slider-container cursor-col-resize select-none mb-6"
-          style={{ aspectRatio: "4/3" }}
+          style={{ 
+            aspectRatio: "4/3",
+            touchAction: "none"
+          }}
           onMouseMove={handleMove}
           onMouseUp={handleEnd}
           onMouseLeave={handleEnd}
