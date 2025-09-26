@@ -1,16 +1,23 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
+import postgres from 'postgres';
+import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js';
 import { eq } from 'drizzle-orm';
 import { photoRestorations } from '../../shared/schema.js';
 
 // Database connection (with error handling)
 let db = null;
 try {
-  const sql = neon(process.env.DATABASE_URL, {
-    fetchConnectionCache: true,
-    poolQueryViaFetch: true,
-  });
-  db = drizzle(sql);
+  const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
+  if (connectionString) {
+    const client = postgres(connectionString, {
+      prepare: false,
+      max: 1,
+      idle_timeout: 20,
+      connect_timeout: 30,
+    });
+    db = drizzlePg(client);
+  }
 } catch (dbError) {
   console.error('❌ Database connection failed:', dbError);
 }
