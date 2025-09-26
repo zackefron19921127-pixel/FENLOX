@@ -46,7 +46,12 @@ export default async function handler(req, res) {
     const form = formidable({
       maxFileSize: 10 * 1024 * 1024, // 10MB
       filter: ({ mimetype }) => {
-        return mimetype && (mimetype.includes('image/jpeg') || mimetype.includes('image/png'));
+        if (!mimetype) return false;
+        const allowed = [
+          'image/jpeg','image/jpg','image/png','image/bmp','image/webp',
+          'image/jfif','image/jfi','image/jpe','image/jif','image/heic','image/heif'
+        ];
+        return allowed.some(t => mimetype.includes(t.replace('image/','')) || mimetype === t);
       }
     });
 
@@ -98,24 +103,39 @@ export default async function handler(req, res) {
           const blob = new Blob([fileBuffer], { type: photoFile.mimetype });
           formData.append('fileToUpload', blob, 'image.jpg');
           formData.append('reqtype', 'fileupload');
-          
+
           const uploadResponse = await fetch('https://catbox.moe/user/api.php', {
             method: 'POST',
             body: formData
           });
-          
+
           if (uploadResponse.ok) {
             const resultUrl = await uploadResponse.text();
             if (resultUrl.startsWith('https://files.catbox.moe/')) {
               publicImageUrl = resultUrl;
-              console.log('📤 Image uploaded successfully:', publicImageUrl);
+              console.log('📤 Image uploaded successfully (catbox):', publicImageUrl);
             }
           }
-          
+
+          // Fallback: 0x0.st
+          if (!publicImageUrl) {
+            console.log('🔁 Catbox failed, trying 0x0.st...');
+            const fd2 = new FormData();
+            fd2.append('file', new Blob([fileBuffer], { type: photoFile.mimetype }), 'image.jpg');
+            const up2 = await fetch('https://0x0.st', { method: 'POST', body: fd2 });
+            if (up2.ok) {
+              const txt = (await up2.text()).trim();
+              if (txt.startsWith('http')) {
+                publicImageUrl = txt;
+                console.log('📤 Image uploaded successfully (0x0.st):', publicImageUrl);
+              }
+            }
+          }
+
           if (!publicImageUrl) {
             throw new Error('Failed to upload image to public hosting');
           }
-          
+
         } catch (uploadError) {
           console.error('❌ Image upload failed:', uploadError);
           // Skip AI processing if we can't upload the image
@@ -126,80 +146,80 @@ export default async function handler(req, res) {
         if (publicImageUrl) {
           // Use Nero AI API with multiple enhancement effects for dramatic results
           console.log('🔑 Making Nero AI request with public URL for comprehensive enhancement');
-          
-          // Apply ScratchFix first
-          const scratchFixResponse = await fetch('https://api.nero.com/biz/api/task', {
-            method: 'POST',
-            headers: {
-              'x-neroai-api-key': neroApiKey,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              type: 'ScratchFix',
-              body: {
-                image: publicImageUrl
-              }
-            })
-          });
 
-          console.log('📡 ScratchFix response status:', scratchFixResponse.status);
-          
-          if (scratchFixResponse.ok) {
-            const scratchFixResult = await scratchFixResponse.json();
-            console.log('📊 ScratchFix result:', scratchFixResult);
-          
-            if (scratchFixResult.code === 0 && scratchFixResult.data?.task_id) {
-              const taskId = scratchFixResult.data.task_id;
-              console.log('🔄 Polling ScratchFix task:', taskId);
-              
-              // Poll for ScratchFix completion with longer timeout
-              for (let i = 0; i < 30; i++) { // 60 seconds max for real AI processing
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
-                
-                const statusResponse = await fetch(`https://api.nero.com/biz/api/task?task_id=${taskId}`, {
+          let currentUrl = publicImageUrl;
+          const effects = ['ScratchFix', 'FaceRestoration', 'ImageUpscaler:Standard'];
+
+          for (const effect of effects) {
+            try {
+              console.log(`🎨 Applying ${effect}...`);
+              const startTask = await fetch('https://api.nero.com/biz/api/task', {
+                method: 'POST',
+                headers: {
+                  'x-neroai-api-key': neroApiKey,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ type: effect, body: { image: currentUrl } })
+              });
+              if (!startTask.ok) {
+                const txt = await startTask.text();
+                console.log(`⚠️ ${effect} start failed:`, startTask.status, txt);
+                continue;
+              }
+              const startJson = await startTask.json();
+              if (!(startJson.code === 0 && startJson.data?.task_id)) {
+                console.log(`⚠️ ${effect} no task id:`, startJson);
+                continue;
+              }
+              const taskId = startJson.data.task_id;
+              // Poll up to 30 attempts
+              for (let i = 0; i < 30; i++) {
+                await new Promise(r => setTimeout(r, 1000));
+                const st = await fetch(`https://api.nero.com/biz/api/task?task_id=${taskId}`, {
                   headers: { 'x-neroai-api-key': neroApiKey }
                 });
-                
-                if (statusResponse.ok) {
-                  const statusResult = await statusResponse.json();
-                  console.log(`📊 ScratchFix status (${i+1}/30):`, statusResult.data?.status);
-                  
-                  if (statusResult.data?.status === 'done' && statusResult.data.result?.output) {
-                    const enhancedImageUrl = statusResult.data.result.output;
-                    console.log('✨ ScratchFix completed! Enhanced URL:', enhancedImageUrl);
-                    
-                    // Download the AI-enhanced result
-                    try {
-                      const downloadResponse = await fetch(enhancedImageUrl);
-                      if (downloadResponse.ok) {
-                        const enhancedBuffer = Buffer.from(await downloadResponse.arrayBuffer());
-                        const enhancedBase64 = enhancedBuffer.toString('base64');
-                        restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
-                        console.log('🎯 API ENHANCEMENT SUCCESS: Photo enhanced by Nero AI!');
-                      }
-                    } catch (downloadError) {
-                      console.error('❌ Failed to download enhanced result:', downloadError);
-                    }
-                    break;
-                  } else if (statusResult.data?.status === 'failed') {
-                    console.log('❌ ScratchFix task failed:', statusResult.data.msg);
-                    break;
-                  }
-                } else {
-                  console.log(`⏳ Status check failed (${i+1}/30):`, statusResponse.status);
+                if (!st.ok) {
+                  console.log(`⏳ ${effect} status http ${st.status}`);
+                  continue;
+                }
+                const stJson = await st.json();
+                const status = stJson?.data?.status;
+                console.log(`📊 ${effect} status (${i+1}/30):`, status);
+                if (status === 'done' && stJson?.data?.result?.output) {
+                  currentUrl = stJson.data.result.output;
+                  console.log(`✅ ${effect} produced output:`);
+                  break;
+                } else if (status === 'failed') {
+                  console.log(`❌ ${effect} failed:`, stJson?.data?.msg);
+                  break;
                 }
               }
-            } else {
-              console.log('⚠️ ScratchFix API error:', scratchFixResult.message || 'No task created');
+            } catch (efErr) {
+              console.log(`❌ ${effect} error:`, efErr);
+            }
+          }
+
+          // If any effect changed the URL, download result
+          if (currentUrl !== publicImageUrl) {
+            try {
+              const downloadResponse = await fetch(currentUrl);
+              if (downloadResponse.ok) {
+                const enhancedBuffer = Buffer.from(await downloadResponse.arrayBuffer());
+                const enhancedBase64 = enhancedBuffer.toString('base64');
+                restoredImageUrl = `data:image/jpeg;base64,${enhancedBase64}`;
+                console.log('🎯 API ENHANCEMENT SUCCESS: Photo enhanced by Nero AI!');
+              } else {
+                console.log('⚠️ Download failed with status:', downloadResponse.status);
+              }
+            } catch (downloadError) {
+              console.error('❌ Failed to download enhanced result:', downloadError);
             }
           } else {
-            const errorText = await scratchFixResponse.text();
-            console.log('⚠️ ScratchFix failed with status:', scratchFixResponse.status);
-            console.log('⚠️ Error response:', errorText);
+            console.log('ℹ️ Effects produced no new output URL; keeping original');
           }
-      } else {
-        console.log('⚠️ No public image URL - skipping AI processing');
-      }
+        } else {
+          console.log('⚠️ No public image URL - skipping AI processing');
+        }
     } else {
       console.log('❌ No Nero AI API key found');
     }
