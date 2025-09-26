@@ -77,9 +77,14 @@ export function usePhotoRestoration() {
   // Poll for restoration status  
   const { data: restoration, isLoading: isProcessing } = useQuery({
     queryKey: ["/api/photos", currentRestorationId],
-    enabled: !!currentRestorationId,
+    // Do not poll if we already have a restored image from the initial upload
+    enabled: !!currentRestorationId && !uploadedRestoration?.restoredImageUrl,
     queryFn: async () => {
       if (!currentRestorationId) return null;
+      // Short-circuit if the upload response already included the restored image
+      if (uploadedRestoration?.restoredImageUrl) {
+        return uploadedRestoration;
+      }
       console.log("🔄 Polling restoration status for ID:", currentRestorationId);
       
       const response = await fetch(`/api/photos/${currentRestorationId}-simple`);
@@ -111,8 +116,8 @@ export function usePhotoRestoration() {
         console.log("⏰ Checking if should continue polling. Status:", data.status);
       }
       
-      // Stop polling if completed or failed
-      if (data?.status === "completed" || data?.status === "failed") {
+      // Stop polling if we already have the restored image or status is terminal
+      if (data?.restoredImageUrl || data?.status === "completed" || data?.status === "failed") {
         console.log("✅ Stopping polling - restoration complete");
         return false;
       }
