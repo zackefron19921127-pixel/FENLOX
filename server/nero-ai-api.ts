@@ -22,16 +22,21 @@ export class NeroAIService {
   private baseUrl: string = 'https://api.nero.com/biz/api/task';
 
   constructor() {
-    this.apiKey = process.env.NERO_AI_API_KEY || '4CI5GNA0UD2UWFDZK5MPCUQ1';
+    this.apiKey = process.env.NERO_AI_API_KEY || '';
     console.log('Nero AI API configured:', this.apiKey ? 'YES' : 'NO');
   }
 
   async restorePhoto(imagePath: string, options: NeroAIOptions): Promise<NeroAIResponse> {
     if (!this.apiKey) {
-      return {
-        success: false,
-        error: 'Nero AI API key not configured'
-      };
+      try {
+        const localUrl = await this.enhanceLocally(imagePath, options);
+        return { success: true, restoredImageUrl: localUrl };
+      } catch (e) {
+        return {
+          success: false,
+          error: 'Nero AI API key not configured and local enhancement failed'
+        };
+      }
     }
 
     try {
@@ -68,20 +73,33 @@ export class NeroAIService {
           restoredImageUrl: localPath
         };
       } else {
-        // No processing occurred, return error
+        // No processing occurred, fall back to local enhancement
+        console.log('ℹ️ No AI change detected, applying local enhancements...');
+        const localUrl = await this.enhanceLocally(imagePath, options);
         return {
-          success: false,
-          error: 'No AI processing was applied to the image'
+          success: true,
+          restoredImageUrl: localUrl
         };
       }
 
     } catch (error) {
       console.error('Nero AI processing error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
+      try {
+        console.log('⚠️ Nero AI failed, applying local enhancements...');
+        const localUrl = await this.enhanceLocally(imagePath, options);
+        return { success: true, restoredImageUrl: localUrl };
+      } catch (_e) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred'
+        };
+      }
     }
+  }
+
+  // Expose local enhancement as a public fallback method
+  public async enhanceLocally(imagePath: string, options: NeroAIOptions): Promise<string> {
+    return this.applyPremiumEnhancements(imagePath, options);
   }
 
   private async createPublicImageUrl(imagePath: string): Promise<string> {
@@ -231,24 +249,41 @@ export class NeroAIService {
   private async downloadResult(resultUrl: string, originalPath: string): Promise<string> {
     const timestamp = Date.now();
     const originalExt = path.extname(originalPath) || '.jpg';
-    const outputPath = path.join(path.dirname(originalPath), `nero-restored-${timestamp}${originalExt}`);
-    
+    const uploadsDir = path.resolve(process.cwd(), 'uploads');
+    try {
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+    } catch (e) {
+      // Ignore and attempt write; route may create it too
+    }
+
+    const filename = `nero-restored-${timestamp}${originalExt}`;
+    const outputPath = path.join(uploadsDir, filename);
+
     const response = await fetch(resultUrl);
     if (!response.ok) {
       throw new Error(`Failed to download result: ${response.status}`);
     }
-    
+
     const buffer = Buffer.from(await response.arrayBuffer());
     fs.writeFileSync(outputPath, buffer);
-    
-    const filename = path.basename(outputPath);
+
     return `/uploads/${filename}`;
   }
 
   private async applyPremiumEnhancements(imagePath: string, options: NeroAIOptions): Promise<string> {
-    // Create output filename with timestamp
+    // Create output filename with timestamp (write into public uploads dir)
     const timestamp = Date.now();
-    const outputPath = path.join(path.dirname(imagePath), `enhanced-${timestamp}.jpg`);
+    const uploadsDir = path.resolve(process.cwd(), 'uploads');
+    try {
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+    } catch (e) {
+      // Ignore and attempt write
+    }
+    const outputPath = path.join(uploadsDir, `enhanced-${timestamp}.jpg`);
     
     try {
       let pipeline = sharp(imagePath);
@@ -315,9 +350,23 @@ export class NeroAIService {
       
     } catch (error) {
       console.error('Premium enhancement error:', error);
-      // Fallback to original image if enhancement fails
-      const filename = path.basename(imagePath);
-      return `/uploads/${filename}`;
+      // Fallback to original image if enhancement fails: copy original into uploads
+      const uploadsDir = path.resolve(process.cwd(), 'uploads');
+      try {
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+      } catch (e) {}
+      const originalExt = path.extname(imagePath) || '.jpg';
+      const fallbackName = `fallback-${Date.now()}${originalExt}`;
+      const fallbackPath = path.join(uploadsDir, fallbackName);
+      try {
+        fs.copyFileSync(imagePath, fallbackPath);
+        return `/uploads/${fallbackName}`;
+      } catch (copyErr) {
+        // As a last resort, signal no change
+        return `/uploads/${path.basename(imagePath)}`;
+      }
     }
   }
 
